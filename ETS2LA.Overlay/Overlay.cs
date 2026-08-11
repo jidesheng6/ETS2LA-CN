@@ -41,8 +41,8 @@ public class OverlayHandler
     public ControlDefinition Interact = new ControlDefinition
     {   
         Id = "ETS2LA.Overlay.Interact",
-        Name = "Overlay Interaction",
-        Description = "When this key is held, the overlay will receive mouse input and allow you to interact with it. NOTE: Interaction with items below the overlay is not possible during this time.",
+        Name = "覆盖层交互",
+        Description = "按住此按键时，覆盖层会接收鼠标输入并允许交互。注意：此时无法操作覆盖层下方的内容。",
         DefaultKeybind = "RightAlt",
         Type = ControlType.Boolean
     };
@@ -56,7 +56,8 @@ public class OverlayHandler
     private List<float> frameTimes = new List<float>();
     private List<double> remainingMs = new List<double>();
     
-    private List<InternalWindow> windows = new();
+    private readonly List<InternalWindow> windows = new();
+    private readonly object windowsLock = new();
     public Dictionary<FontStyle, ImFontPtr> Fonts = new Dictionary<FontStyle, ImFontPtr>();
     public const float DefaultFontSize = 18f;
 
@@ -82,15 +83,18 @@ public class OverlayHandler
         overlaySettings = OverlaySettingsHandler.Current.GetSettings();
         OverlaySettingsHandler.Current.OnSettingsUpdated += OnOverlaySettingsUpdated;
 
-        Task.Factory.StartNew(RenderLoop, TaskCreationOptions.LongRunning);
-        
-        windows.Add(new ConsoleWindow());
-        windows.Add(new OverlayInfoWindow());
-        windows.Add(new DemoWindow());
-        windows.Add(new StateWindow());
+        // 先完成内置窗口注册，再启动渲染线程，避免启动阶段并发遍历列表。
+        lock (windowsLock)
+        {
+            windows.Add(new ConsoleWindow());
+            windows.Add(new OverlayInfoWindow());
+            windows.Add(new StateWindow());
 
-        if (MLSettings.Current.RenderVisionCameras)
-            windows.Add(new VisionCamerasWindow());
+            if (MLSettings.Current.RenderVisionCameras)
+                windows.Add(new VisionCamerasWindow());
+        }
+
+        Task.Factory.StartNew(RenderLoop, TaskCreationOptions.LongRunning);
     }
 
     private void OnOverlaySettingsUpdated(OverlaySettings newSettings)
@@ -267,7 +271,13 @@ public class OverlayHandler
             ImGui.Spacing();
             try
             {
-                foreach (var window in windows) {
+                InternalWindow[] windowSnapshot;
+                lock (windowsLock)
+                {
+                    windowSnapshot = windows.ToArray();
+                }
+
+                foreach (var window in windowSnapshot) {
                     bool isOpen = window.IsWindowOpen;
                     Vector4 color = isOpen ? new Vector4(0.5f, 0.6f, 0.5f, 1f) : new Vector4(0.6f, 0.5f, 0.5f, 1f);
 
@@ -304,7 +314,13 @@ public class OverlayHandler
         ImGui.TextColored(new Vector4(1f,1f,1f,0.5f), $"{(int)(1/(AverageFrameTime / 1000f))}\n{freePercentage}%%");
         ImGui.End();
 
-        foreach (InternalWindow window in windows)
+        InternalWindow[] renderSnapshot;
+        lock (windowsLock)
+        {
+            renderSnapshot = windows.ToArray();
+        }
+
+        foreach (InternalWindow window in renderSnapshot)
         {
             try
             {
@@ -446,6 +462,8 @@ public class OverlayHandler
 
         List<Tuple<FontStyle, string>> fonts = new List<Tuple<FontStyle, string>>()
         {
+            // 先加载中文字体作为 ImGui 默认字体，避免中文日志变成问号；Geist 仍用于英文和特定样式。
+            new Tuple<FontStyle, string>(FontStyle.Regular, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Fonts", "NotoSansSC.otf")),
             new Tuple<FontStyle, string>(FontStyle.Medium, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Fonts", "Geist-Medium.ttf")),
             new Tuple<FontStyle, string>(FontStyle.Regular, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Fonts", "Geist-Regular.ttf")),
             new Tuple<FontStyle, string>(FontStyle.SemiBold, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Fonts", "Geist-SemiBold.ttf")),
@@ -505,7 +523,7 @@ public class OverlayHandler
 
         unsafe
         {
-            Logger.Info("Initializing GLFW Version: " + Utils.DecodeStringUTF8(GLFW.GetVersionString()));
+            Logger.Info("正在初始化 GLFW，版本：" + Utils.DecodeStringUTF8(GLFW.GetVersionString()));
         }
 
         // This code sets the platform to X11 instead of wayland. This only needs to be
@@ -554,46 +572,58 @@ public class OverlayHandler
 
     public void RegisterWindow(WindowDefinition def, Action renderAction, Optional<Action> renderContextMenuAction = default)
     {
-        foreach (var window in windows)
+        lock (windowsLock)
         {
-            if (window.Definition.Title == def.Title)
+            foreach (var window in windows)
             {
-                window.Definition = def;
-                window.Render = renderAction;
-                window.RenderContextMenu = renderContextMenuAction.GetValueOrDefault(() => { });
-                return;
+                if (window.Definition.Title == def.Title)
+                {
+                    window.Definition = def;
+                    window.Render = renderAction;
+                    window.RenderContextMenu = renderContextMenuAction.GetValueOrDefault(() => { });
+                    return;
+                }
             }
-        }
-        
-        var newWindow = new ExternalWindow(def, renderAction, renderContextMenuAction.GetValueOrDefault(() => { }));
-        if (def.Open.HasValue)
-        {
-            newWindow.IsWindowOpen = def.Open.Value;
-        }
 
-        windows.Add(newWindow);
+            var newWindow = new ExternalWindow(def, renderAction, renderContextMenuAction.GetValueOrDefault(() => { }));
+            if (def.Open.HasValue)
+            {
+                newWindow.IsWindowOpen = def.Open.Value;
+            }
+
+            windows.Add(newWindow);
+        }
     }
 
     public void UnregisterWindow(WindowDefinition def)
     {
-        windows.RemoveAll(w => w.Definition.Title == def.Title);
+        lock (windowsLock)
+        {
+            windows.RemoveAll(w => w.Definition.Title == def.Title);
+        }
     }
 
     public void OpenWindow(string windowName)
     {
-        var window = windows.FirstOrDefault(w => w.Definition.Title == windowName);
-        if (window != null)
+        lock (windowsLock)
         {
-            window.IsWindowOpen = true;
+            var window = windows.FirstOrDefault(w => w.Definition.Title == windowName);
+            if (window != null)
+            {
+                window.IsWindowOpen = true;
+            }
         }
     }
 
     public void CloseWindow(string windowName)
     {
-        var window = windows.FirstOrDefault(w => w.Definition.Title == windowName);
-        if (window != null)
+        lock (windowsLock)
         {
-            window.IsWindowOpen = false;
+            var window = windows.FirstOrDefault(w => w.Definition.Title == windowName);
+            if (window != null)
+            {
+                window.IsWindowOpen = false;
+            }
         }
     }
 

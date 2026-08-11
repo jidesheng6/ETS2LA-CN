@@ -107,9 +107,9 @@ public class PluginHandler
     public void LoadLibraries()
     {
         string[] libraryFiles = DiscoverManualDlls("Libraries");
-        Logger.Info($"Discovered {libraryFiles.Length} manually installed libraries.");
+        Logger.Info($"发现 {libraryFiles.Length} 个手动安装的库。");
         libraryFiles = libraryFiles.Concat(DiscoverManifestDlls(PluginType.Library)).ToArray();
-        Logger.Info($"Discovered {libraryFiles.Length} libraries in total.");
+        Logger.Info($"共发现 {libraryFiles.Length} 个库。");
 
         foreach (string filename in libraryFiles)
         {
@@ -126,12 +126,12 @@ public class PluginHandler
                 {
                     var libraryPlugin = (ILibraryPlugin)Activator.CreateInstance(type)!;
                     LoadedLibraryPlugins.Add(libraryPlugin);
-                    Logger.Info($"Loaded library plugin: [gray]{type.FullName}[/] from [gray]{filename}[/].");
+                    Logger.Info($"已加载库插件：[gray]{type.FullName}[/]，来源：[gray]{filename}[/]。");
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error($"Failed to load library plugin from [gray]{filename}[/]: {ex}");
+                Logger.Error($"从 [gray]{filename}[/] 加载库插件失败：{ex}");
             }
         }
     }
@@ -140,9 +140,9 @@ public class PluginHandler
     {
         loading = true;
         string[] pluginFiles = DiscoverManualDlls("Plugins");
-        Logger.Info($"Discovered {pluginFiles.Length} manually installed plugins.");
+        Logger.Info($"发现 {pluginFiles.Length} 个手动安装的插件。");
         pluginFiles = pluginFiles.Concat(DiscoverManifestDlls(PluginType.Plugin)).ToArray();
-        Logger.Info($"Discovered {pluginFiles.Length} plugins in total.");
+        Logger.Info($"共发现 {pluginFiles.Length} 个插件。");
 
         foreach (string filename in pluginFiles)
         {
@@ -173,7 +173,7 @@ public class PluginHandler
                     LoadedPlugins.Add(plugin);
                     _pluginLoadContexts[plugin] = loadContext;
                     
-                    Logger.Info($"Loaded plugin: [gray]{type.FullName}[/] from [gray]{filename}[/].");
+                    Logger.Info($"已加载插件：[gray]{type.FullName}[/]，来源：[gray]{filename}[/]。");
                 }
             }
             catch (Exception ex)

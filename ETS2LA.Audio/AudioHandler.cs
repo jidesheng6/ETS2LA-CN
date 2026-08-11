@@ -5,6 +5,7 @@ using ETS2LA.Settings;
 using SoundFlow.Abstracts;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Backends.MiniAudio.Enums;
 using SoundFlow.Components;
 using SoundFlow.Enums;
 using SoundFlow.Interfaces;
@@ -31,21 +32,26 @@ public class AudioHandler
     private SettingsHandler _settingsHandler;
     private AudioSettings _settings;
 
-    private MiniAudioEngine engine;
+    private MiniAudioEngine? engine;
     private AudioFormat format = AudioFormat.DvdHq;
     private AudioPlaybackDevice? outputDevice;
+    private readonly bool _hardwareAudioEnabled;
+    private bool _audioInitializationAttempted;
 
     private AudioHandler()
     {
-        engine = new MiniAudioEngine();
-        engine.UpdateAudioDevicesInfo();
-        var defaultDevice = engine.PlaybackDevices.FirstOrDefault(d => d.IsDefault);
-        outputDevice = engine.InitializePlaybackDevice(defaultDevice, format);
-
         _settingsHandler = new SettingsHandler();
         _settings = _settingsHandler.Load<AudioSettings>("AudioSettings.json");
         _settingsHandler.RegisterListener<AudioSettings>("AudioSettings.json", OnSettingsChanged);
-        Task.Run(ProcessAudioQueue);
+        _hardwareAudioEnabled = Environment.GetEnvironmentVariable("ETS2LA_HARDWARE_AUDIO") == "1";
+        if (!_hardwareAudioEnabled)
+        {
+            Logger.Warn("音频驱动已延迟禁用，以避免启动时崩溃。设置 ETS2LA_HARDWARE_AUDIO=1 后可手动尝试硬件声音。", "AudioHandler.cs", 46);
+        }
+        if (_hardwareAudioEnabled)
+        {
+            Task.Run(ProcessAudioQueue);
+        }
     }
 
     /// <summary>
@@ -73,6 +79,8 @@ public class AudioHandler
     /// <param name="loopCount">How many times this file should be played.</param>
     public void Queue(string filepath, bool overrideCurrent = false, int loopCount = 1)
     {
+        if (!_hardwareAudioEnabled || !EnsureAudioDevice()) return;
+
         if (!File.Exists(filepath))
         {
             Logger.Warn($"File not found: {filepath}");
@@ -96,7 +104,29 @@ public class AudioHandler
     /// <param name="loopCondition">The condition under which the audio should loop. (function with bool return)</param>
     public void Queue(string filepath, Func<bool> loopCondition)
     {
+         if (!_hardwareAudioEnabled || !EnsureAudioDevice()) return;
          _queue.Enqueue(new AudioJob(filepath, loopCondition, 1));
+    }
+
+    private bool EnsureAudioDevice()
+    {
+        if (outputDevice != null) return true;
+        if (_audioInitializationAttempted) return false;
+
+        _audioInitializationAttempted = true;
+        try
+        {
+            engine = new MiniAudioEngine(new[] { MiniAudioBackend.Wasapi, MiniAudioBackend.Null });
+            engine.UpdateAudioDevicesInfo();
+            var defaultDevice = engine.PlaybackDevices.FirstOrDefault(d => d.IsDefault);
+            outputDevice = engine.InitializePlaybackDevice(defaultDevice, format);
+            return outputDevice != null;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"硬件音频初始化失败，已禁用提示音：{ex.Message}", "AudioHandler.cs", 78);
+            return false;
+        }
     }
 
     private async Task ProcessAudioQueue()
@@ -146,6 +176,7 @@ public class AudioHandler
 
     private async Task PlaySound(AudioJob job, CancellationToken token)
     {
+        if (outputDevice == null || engine == null) return;
         if (token.IsCancellationRequested) return;
         Logger.Info($"Playing sound: {job.Filename}");
 

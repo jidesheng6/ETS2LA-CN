@@ -283,7 +283,8 @@ public class ParsedRoad : IParsedItem
             }
         }
 
-        if (closestLaneDistance > 4.5f * 3) // 3 lanes
+        // 最多只反向尝试一次；反向结果仍很远时直接返回最佳候选，避免无限递归导致栈溢出。
+        if (!inverted && closestLaneDistance > 4.5f * 3) // 3 lanes
             closestLane = GetBestLaneFor(Position, true);
 
         return closestLane;
@@ -698,7 +699,8 @@ public class ParsedRoadList : IParsedItem
             }
         }
 
-        if (closestLaneDistance > 4.5f * 3) // 3 lanes
+        // 最多只反向尝试一次；反向结果仍很远时直接返回最佳候选，避免无限递归导致栈溢出。
+        if (!inverted && closestLaneDistance > 4.5f * 3) // 3 lanes
             closestLane = GetBestLaneFor(Position, true);
 
         return closestLane;

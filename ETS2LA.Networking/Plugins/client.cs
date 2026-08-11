@@ -71,11 +71,11 @@ public class PluginApiClient
             var jsonResponse = await response.Content.ReadAsStringAsync();
             AvailablePlugins = JsonSerializer.Deserialize<List<NetworkPlugin>>(jsonResponse, jsonOptions) ?? new List<NetworkPlugin>();
 
-            Log($"Fetched {AvailablePlugins.Count} plugins from {apiServer.Value.BaseUrl}");
+            Log($"已从 {apiServer.Value.BaseUrl} 获取 {AvailablePlugins.Count} 个插件");
         }
         catch
         {
-            Log($"Failed to fetch available plugins. Please check your internet connection.", NotificationLevel.Danger);
+            Log("获取插件列表失败，请检查网络连接。", NotificationLevel.Danger);
         }
     }
 

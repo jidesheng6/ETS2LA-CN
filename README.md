@@ -1,5 +1,14 @@
 ![](Assets/markdown_logo.png)
 
+# ETS2LA 中文优化版（非官方）
+
+这是基于 [ETS2LA](https://github.com/ETS2LA/ETS2LA) `3.4.33` 的非官方衍生版本，由 QuiYe666 维护。
+
+- 提供中文界面与本地化体验改进。
+- 与 ETS2LA 官方团队、SCS Software 无关联，也不代表其立场或支持。
+- 保留 ETS2LA 的 GPL-3.0 许可证与原有版权声明；完整改动记录见 [CHANGELOG.md](CHANGELOG.md)。
+- 独立驾驶插件及其二进制文件不包含在本仓库中。
+
 # ETS2LA
 ETS2LA is a project that aims to finally bring self-driving technology to SCS Software's Truck Simulators. This page includes some information, but if you want to read all the documentation then please head over to [our website](https://ets2la.com)!
 

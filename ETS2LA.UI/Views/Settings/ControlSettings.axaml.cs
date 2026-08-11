@@ -235,18 +235,18 @@ public class ControlItem : INotifyPropertyChanged
     {
         if (string.IsNullOrEmpty(_instance.DeviceId))
         {
-            return "Unbound";
+            return "未绑定";
         }
 
         if (_instance.DeviceId.ToLower().StartsWith("keyboard"))
         {
-            return "Keyboard";
+            return "键盘";
         }
 
         var joystick = _cHandler.GetInputDeviceInfoById(_instance.DeviceId);
         string name = joystick != null 
                       ? joystick.Name 
-                      : "Not Connected";
+                      : "未连接";
 
         if (name.StartsWith("Controller ("))
         {
@@ -266,14 +266,15 @@ public class ControlItem : INotifyPropertyChanged
     private string GetDeviceButton()
     {
         if (!_instance.IsBound())
-            return "Unbound";
+            return "未绑定";
         
-        string controlIdStr = _instance.ControlId.ToString() ?? "Unbound";
+        string controlIdStr = _instance.ControlId.ToString() ?? "未绑定";
         string type = GetControlType();
-        controlIdStr = controlIdStr.Replace(type, "").Trim();
+        bool isHat = controlIdStr.StartsWith("Hat ");
+        controlIdStr = isHat ? controlIdStr[4..].Trim() : controlIdStr.Replace(type, "").Trim();
         
         #if LINUX
-        if (type.StartsWith("Hat"))
+        if (isHat)
         {
             int dirId = int.Parse(controlIdStr);
             controlIdStr = dirId switch
@@ -286,7 +287,7 @@ public class ControlItem : INotifyPropertyChanged
             };
         }
         #else
-        if (type.StartsWith("Hat")) 
+        if (isHat)
         {
             controlIdStr = controlIdStr switch
             {
@@ -305,24 +306,24 @@ public class ControlItem : INotifyPropertyChanged
     private string GetControlType()
     {
         if (!_instance.IsBound())
-            return "Unbound";
+            return "未绑定";
         
         bool isKeyboard = _instance.DeviceId.ToString().ToLower().StartsWith("keyboard");
         bool isButton = _instance.ControlId.ToString()?.StartsWith("Button ") ?? false;
         bool isHat = _instance.ControlId.ToString()?.StartsWith("Hat ") ?? false;
 
         if (isKeyboard)
-            return "Key";
+            return "按键";
         if (isButton)
-            return "Button";
+            return "按钮";
         if (isHat)
-            return "Hat " + _instance.ControlId.ToString()?.Split(" ")?.ElementAtOrDefault(1);
+            return "方向帽 " + _instance.ControlId.ToString()?.Split(" ")?.ElementAtOrDefault(1);
 
-        return _instance.AxisBehavior.ToString() + " Axis";
+        return _instance.AxisBehavior.ToString() + "轴";
     }
 
     private string GetAutomationName()
     {
-        return $"Control {Name}, {Description}, set to {GetDeviceName()} {GetControlType()} {GetDeviceButton()}";
+        return $"控制：{Name}，{Description}，当前绑定：{GetDeviceName()} {GetControlType()} {GetDeviceButton()}";
     }
 }

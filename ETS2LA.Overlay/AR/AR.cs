@@ -16,7 +16,8 @@ public class ARRenderer
 {
     private CameraData cameraData;
     private GameTelemetryData telemetryData;
-    private List<ARRenderCallback> renderCallbacks = new();
+    private readonly List<ARRenderCallback> renderCallbacks = new();
+    private readonly object renderCallbacksLock = new();
     private Matrix4x4 thisFrameProjection;
     private Matrix4x4 thisFrameView;
     private Matrix4x4 thisFrameViewProjection;
@@ -88,7 +89,13 @@ public class ARRenderer
         thisFrameWidth = (int)OverlayHandler.Current.OverlayWidth;
         thisFrameHeight = (int)OverlayHandler.Current.OverlayHeight;
 
-        foreach (var callback in renderCallbacks)
+        ARRenderCallback[] callbackSnapshot;
+        lock (renderCallbacksLock)
+        {
+            callbackSnapshot = renderCallbacks.ToArray();
+        }
+
+        foreach (var callback in callbackSnapshot)
         {
             try { callback.Render3D(); }
             catch (Exception ex)
@@ -113,7 +120,10 @@ public class ARRenderer
     /// <param name="callback">Callback definition / instance</param>
     public void RegisterRenderCallback(ARRenderCallback callback)
     {
-        renderCallbacks.Add(callback);
+        lock (renderCallbacksLock)
+        {
+            renderCallbacks.Add(callback);
+        }
     }
 
     /// <summary>
@@ -122,7 +132,10 @@ public class ARRenderer
     /// <param name="name">Name of the callback to remove</param>
     public void UnregisterRenderCallback(string name)
     {
-        renderCallbacks.RemoveAll(callback => callback.Definition.Name == name);
+        lock (renderCallbacksLock)
+        {
+            renderCallbacks.RemoveAll(callback => callback.Definition.Name == name);
+        }
     }
 
     /// <summary>
@@ -380,19 +393,28 @@ public class ARRenderer
             ARCoordinate outEnd   = leftPoints[i + 1];
             ARCoordinate inEnd    = rightPoints[i + 1];
 
-            if (AllPointsOutsideRenderDistance(outStart, inStart, outEnd, inEnd))
+            // 同一顶点原先会重复进行距离检查、投影和淡出计算；每个顶点只转换一次。
+            Vector3 worldOutStart = ARCoordinateToVector3(outStart);
+            Vector3 worldInStart = ARCoordinateToVector3(inStart);
+            Vector3 worldInEnd = ARCoordinateToVector3(inEnd);
+            Vector3 worldOutEnd = ARCoordinateToVector3(outEnd);
+            float maxDistanceSquared = overlaySettings.MaxARDistance * overlaySettings.MaxARDistance;
+            if (Vector3.DistanceSquared(worldOutStart, camPos) > maxDistanceSquared &&
+                Vector3.DistanceSquared(worldInStart, camPos) > maxDistanceSquared &&
+                Vector3.DistanceSquared(worldInEnd, camPos) > maxDistanceSquared &&
+                Vector3.DistanceSquared(worldOutEnd, camPos) > maxDistanceSquared)
                 continue;
 
-            Vector2? ndcOutStart = WorldToNDC(ARCoordinateToVector3(outStart));
-            Vector2? ndcInStart  = WorldToNDC(ARCoordinateToVector3(inStart));
-            Vector2? ndcInEnd    = WorldToNDC(ARCoordinateToVector3(inEnd));
-            Vector2? ndcOutEnd   = WorldToNDC(ARCoordinateToVector3(outEnd));
+            Vector2? ndcOutStart = WorldToNDC(worldOutStart);
+            Vector2? ndcInStart  = WorldToNDC(worldInStart);
+            Vector2? ndcInEnd    = WorldToNDC(worldInEnd);
+            Vector2? ndcOutEnd   = WorldToNDC(worldOutEnd);
 
             if (!ndcOutStart.HasValue || !ndcInStart.HasValue || !ndcInEnd.HasValue || !ndcOutEnd.HasValue)
                 continue;
 
-            float distanceStart = Vector3.Distance(ARCoordinateToVector3(outStart), camPos);
-            float distanceEnd = Vector3.Distance(ARCoordinateToVector3(outEnd), camPos);
+            float distanceStart = Vector3.Distance(worldOutStart, camPos);
+            float distanceEnd = Vector3.Distance(worldOutEnd, camPos);
 
             
 

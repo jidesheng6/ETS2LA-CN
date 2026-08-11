@@ -136,6 +136,12 @@ public class ApplicationState
     /// </summary>
     public float DesiredSpeed { get; set; } = 0.0f;
 
+    /// <summary>ACC 最近一次计算出的约束目标，单位为 m/s，仅用于状态信息显示。</summary>
+    public float AccConstraintTargetSpeed { get; set; } = float.NaN;
+
+    /// <summary>当前生效的 ACC 约束来源，仅用于状态信息显示。</summary>
+    public string AccActiveConstraintSource { get; set; } = "None";
+
     /// <summary>
     ///  This value will determine the currently used units for any values shown in the UI. This value
     ///  is automatically changed by ETS2LA, either when the user sets it in the settings, or when we
@@ -203,20 +209,34 @@ public class ApplicationState
         }
     }
 
+    private void EnsureSpeedLimitBaseline()
+    {
+        if (lastSpeedLimit <= 0f && latestTelemetryData.truckFloat.speedLimit > 0f)
+            lastSpeedLimit = latestTelemetryData.truckFloat.speedLimit;
+    }
+
     private void HandleSpeedLimitChanged(float newSpeedLimit)
     {
         if (AssistanceSettings.Current.IgnoreTrafficRules)
             return;
-        
-        if (DesiredSpeed == 0)
+
+        if (newSpeedLimit <= 0f)
+            return;
+
+        // 首次收到限速时先建立基准；此时用户可能还没有按 SET。
+        if (lastSpeedLimit <= 0f)
+        {
+            lastSpeedLimit = newSpeedLimit;
+            if (DesiredSpeed == 0f)
+                return;
+        }
+
+        if (DesiredSpeed == 0f)
             return;
 
         float offset = 0;
         if (lastSpeedLimit != 0)
             offset = DesiredSpeed - lastSpeedLimit; 
-
-        if (newSpeedLimit == 0)
-            newSpeedLimit = UnitConversions.ToScientificUnits(UnitType.Speed, 30, Units.Metric);
 
         lastSpeedLimit = newSpeedLimit;
         DesiredSpeed = newSpeedLimit + offset;
@@ -242,9 +262,13 @@ public class ApplicationState
             if (assistanceSettings.SetSpeedBehaviourOption == SetSpeedBehaviour.CurrentSpeed)
                 DesiredSpeed = latestTelemetryData.truckFloat.speed;
             else if (assistanceSettings.SetSpeedBehaviourOption == SetSpeedBehaviour.SpeedLimit)
+            {
+                if (latestTelemetryData.truckFloat.speedLimit > 0f)
+                    lastSpeedLimit = latestTelemetryData.truckFloat.speedLimit;
                 DesiredSpeed = latestTelemetryData.truckFloat.speedLimit != 0 ?
                                latestTelemetryData.truckFloat.speedLimit :
                                UnitConversions.ToScientificUnits(UnitType.Speed, 30, Units.Metric);
+            }
 
             Events.Current.Publish<EventArgs>("ETS2LA.State.AssistsUnpaused", new EventArgs());
             Events.Current.Publish<bool>("ETS2LA.State.SteeringPaused", PauseSteeringAssist);
@@ -267,6 +291,8 @@ public class ApplicationState
     {
         bool b = (bool)e.NewValue;
         if(b == true) return; // key down event
+
+        EnsureSpeedLimitBaseline();
 
         // Resume after pause
         if (PauseLongitudinalAssist)
@@ -314,6 +340,8 @@ public class ApplicationState
     {
         bool b = (bool)e.NewValue;
         if(b == true) return; // key down event
+
+        EnsureSpeedLimitBaseline();
 
         if (PauseLongitudinalAssist)
         {

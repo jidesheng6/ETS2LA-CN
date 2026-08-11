@@ -35,10 +35,10 @@ public partial class MainWindow : AppWindow
     private readonly List<Button> navButtons = new();
     private readonly PluginManagerService pluginService;
     private readonly DashboardView dashboardView = new();
-    private readonly WikiView wikiView = new();
-    private readonly ManagerView managerView;
-    private readonly CatalogueView catalogueView;
-    private readonly SettingsView settingsView;
+    private WikiView? wikiView;
+    private ManagerView? managerView;
+    private CatalogueView? catalogueView;
+    private SettingsView? settingsView;
     public static event EventHandler? WindowOpened;
 
     public MainWindow()
@@ -62,9 +62,6 @@ public partial class MainWindow : AppWindow
         UINotificationHandler.Current.SetWindow(this);
 
         pluginService = new PluginManagerService();
-        managerView = new ManagerView(pluginService);
-        catalogueView = new CatalogueView();
-        settingsView = new SettingsView();
         navButtons.AddRange(new[]
         {
             DashboardButton, VisualizationButton, ManagerButton, CatalogueButton,
@@ -147,7 +144,7 @@ public partial class MainWindow : AppWindow
         {
             Id = "MainWindow.Shutdown",
             Title = "ETS2LA",
-            Content = "Shutting down application & backend...",
+            Content = "正在关闭应用程序和后端...",
             CloseAfter = 20.0f
         });
         pluginService.Shutdown();
@@ -211,13 +208,13 @@ public partial class MainWindow : AppWindow
         ContentHost.Content = page switch
         {
             PageKind.Dashboard => dashboardView,
-            PageKind.Manager => managerView,
-            PageKind.Visualization => CreatePlaceholder("Sorry", "This page is being remade and isn't available in this version. It will return in a future update."),
-            PageKind.Catalogue => catalogueView,
-            PageKind.Performance => CreatePlaceholder("Performance", "This page hasn't been implemented yet, you can monitor performance using external tools."),
-            PageKind.Wiki => wikiView,
-            PageKind.Roadmap => CreatePlaceholder("Roadmap", "Please take a look at our public roadmap on GitHub. Navigate to the repository and click on the Projects tab at the top."),
-            PageKind.Settings => settingsView,
+            PageKind.Manager => managerView ??= new ManagerView(pluginService),
+            PageKind.Visualization => CreatePlaceholder("Sorry", "此页面正在重做，当前版本暂不可用，未来更新会恢复。"),
+            PageKind.Catalogue => catalogueView ??= new CatalogueView(),
+            PageKind.Performance => CreatePlaceholder("Performance", "此页面尚未实现，你可以使用外部工具监控性能。"),
+            PageKind.Wiki => wikiView ??= new WikiView(),
+            PageKind.Roadmap => CreatePlaceholder("路线图", "请查看 GitHub 上的公开路线图。进入仓库后点击顶部的 Projects 选项卡。"),
+            PageKind.Settings => settingsView ??= new SettingsView(),
             _ => dashboardView
         };
     }

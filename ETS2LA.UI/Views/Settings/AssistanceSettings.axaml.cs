@@ -277,15 +277,36 @@ public class TabStripItemHandler: INotifyPropertyChanged
 
     private string GetFormattedName()
     {
+        return Item switch
+        {
+            "Slow" => "慢",
+            "Normal" => "正常",
+            "Fast" => "快",
+            "Near" => "近",
+            "Far" => "远",
+            "SpeedLimit" => "限速",
+            "CurrentSpeed" => "当前速度",
+            "Off" => "关闭",
+            "Visual" => "视觉提醒",
+            "Chime" => "提示音",
+            "Late" => "较晚",
+            "Medium" => "中等",
+            "Early" => "较早",
+            _ => FormatOptionName(Item)
+        };
+    }
+
+    private static string FormatOptionName(string option)
+    {
         // Add a space before each capital letter (except the first)
         // e.g., "AccelerationResponse" -> "Acceleration Response"
-        var formatted = System.Text.RegularExpressions.Regex.Replace(Item, "(\\B[A-Z])", " $1");
+        var formatted = System.Text.RegularExpressions.Regex.Replace(option, "(\\B[A-Z])", " $1");
         return formatted;
     }
 
     private string GetAutomationText()
     {
-        string text = $"Tab strip item {Header}, button";
+        string text = $"选项卡：{Header}，按钮";
         return text;
     }
 

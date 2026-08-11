@@ -10,13 +10,13 @@
 
             <StackPanel Spacing="10">
                 <StackPanel Spacing="3">
-                    <TextBlock Text="Display Units" />
-                    <TextBlock Text="Which units should be used for displaying values?" FontSize="12" Classes="Description" />
+                    <TextBlock Text="显示单位" />
+                    <TextBlock Text="显示数值时应使用哪种单位？" FontSize="12" Classes="Description" />
                 </StackPanel>
                 <TabStrip ItemsSource="{Binding DisplayUnitOptions}" 
                         SelectedIndex="{Binding SelectedDisplayUnitOption}" 
                         SelectionChanged="OnDisplayUnitChanged"
-                        AutomationProperties.Name="Displayed Units">
+                        AutomationProperties.Name="显示单位">
 
                     <TabStrip.Styles>
                         <Style Selector="TabStripItem" x:DataType="views:TabStripItemHandler">
@@ -33,7 +33,7 @@
                     </TabStrip.ItemTemplate>
                 </TabStrip>
                 <StackPanel IsVisible="{Binding IsUsingScientificUnits}" Spacing="3">
-                    <TextBlock Text="Has only slight differences to metric units, for example instead of 'bar' (Atmospheres), scientific units use 'Pa' (Pascals)." FontSize="12" />
+                    <TextBlock Text="与公制单位只有轻微差异，例如科学单位使用“Pa”（帕斯卡）而不是“bar”（标准大气压）。" FontSize="12" />
                 </StackPanel>
             </StackPanel>
 
@@ -41,65 +41,65 @@
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Support Multiple Viewports" VerticalAlignment="Center" />
+                    <TextBlock Text="支持多个视口" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding SupportMultipleViewports}" Classes="primary-toggle" AutomationProperties.Name="Overlay support for multiple viewports" />
                 </Grid>
-                <TextBlock Text="This allows ETS2LA to render in multiple viewports, meaning you can move overlay windows to any monitor." FontSize="12" Classes="Description" />
-                <TextBlock Text="You need to restart ETS2LA for this option to apply." FontSize="12" Classes="Warning" IsVisible="{Binding ChangedSupportMultipleViewports}" />
+                <TextBlock Text="允许 ETS2LA 使用多个视口，你可以将叠加层窗口移动到任意显示器。" FontSize="12" Classes="Description" />
+                <TextBlock Text="需要重启 ETS2LA 才能应用此选项。" FontSize="12" Classes="Warning" IsVisible="{Binding ChangedSupportMultipleViewports}" />
             </StackPanel>
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Limit Overlay Framerate" VerticalAlignment="Center" />
+                    <TextBlock Text="限制叠加层帧率" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding LimitOverlayFramerate}" Classes="primary-toggle" AutomationProperties.Name="Limit overlay framerate" />
                 </Grid>
-                <TextBlock Text="In most situations, over half of ETS2LA's CPU use will be for the overlay. You can lower it's framerate to reduce CPU and GPU usage." FontSize="12" Classes="Description" />
+                <TextBlock Text="在大多数情况下，ETS2LA 一半以上的 CPU 占用来自叠加层。你可以降低叠加层帧率以减少 CPU 和 GPU 使用率。" FontSize="12" Classes="Description" />
             </StackPanel>
 
             <StackPanel Spacing="12" IsVisible="{Binding LimitOverlayFramerate}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Max Overlay Framerate" />
+                    <TextBlock Text="叠加层最高帧率" />
                     <TextBlock Text="{Binding ElementName=MaxFramerateSlider, Path=Value, StringFormat='{}{0:0} FPS'}" />
                 </StackPanel>
-                <Slider Name="MaxFramerateSlider" Minimum="1" Maximum="120" Value="{Binding MaxOverlayFramerate}" AutomationProperties.Name="Max Overlay Framerate" />
+                <Slider Name="MaxFramerateSlider" Minimum="1" Maximum="120" Value="{Binding MaxOverlayFramerate}" AutomationProperties.Name="叠加层最高帧率" />
             </StackPanel>
 
             <Separator />
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Render AR Elements" VerticalAlignment="Center" />
+                    <TextBlock Text="渲染 AR 元素" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding RenderAR}" Classes="primary-toggle" AutomationProperties.Name="Render AR elements" />
                 </Grid>
-                <TextBlock Text="We can render elements in the game world using our overlay. This will use additional CPU and GPU resources." FontSize="12" Classes="Description" />
+                <TextBlock Text="可以使用叠加层在游戏世界中渲染元素，这会额外占用 CPU 和 GPU 资源。" FontSize="12" Classes="Description" />
             </StackPanel>
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Simplified Graphics" VerticalAlignment="Center" />
+                    <TextBlock Text="简化图形" VerticalAlignment="Center" />
                     <ToggleSwitch Grid.Column="1" IsChecked="{Binding SimplifiedGraphics}" Classes="primary-toggle" AutomationProperties.Name="Simplified graphics" />
                 </Grid>
-                <TextBlock Text="Using simplified graphics can improve performance on lower-end hardware, or fix situations in which advanced features like shaders are not supported." FontSize="12" Classes="Description" />
+                <TextBlock Text="使用简化图形可以提升低端硬件的性能，也可以解决不支持着色器等高级功能的问题。" FontSize="12" Classes="Description" />
             </StackPanel>
 
             <StackPanel Spacing="10" IsVisible="{Binding RenderAR}">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Stop Rendering When Game is Paused" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding DontRenderWhenPaused}" Classes="primary-toggle" AutomationProperties.Name="Stop rendering AR when game is paused" />
+                    <TextBlock Text="游戏暂停时停止渲染" VerticalAlignment="Center" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding DontRenderWhenPaused}" Classes="primary-toggle" AutomationProperties.Name="游戏暂停时停止渲染 AR 元素" />
                 </Grid>
-                <TextBlock Text="When the game reports itself being paused, ETS2LA won't render AR elements." FontSize="12" Classes="Description" />
+                <TextBlock Text="游戏报告已暂停时，ETS2LA 不会渲染 AR 元素。" FontSize="12" Classes="Description" />
             </StackPanel>
 
             <StackPanel Spacing="12" IsVisible="{Binding RenderAR}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="Max AR Rendering Distance" />
+                    <TextBlock Text="AR 最大渲染距离" />
                     <TextBlock Text="{Binding ARDistanceDisplay}" />
                 </StackPanel>
-                <Slider Name="MaxARDistanceSlider" Minimum="50" Maximum="300" Value="{Binding MaxARDistance}" AutomationProperties.Name="Max AR Rendering Distance" />
+                <Slider Name="MaxARDistanceSlider" Minimum="50" Maximum="300" Value="{Binding MaxARDistance}" AutomationProperties.Name="AR 最大渲染距离" />
             </StackPanel>
 
             <StackPanel Spacing="12" IsVisible="{Binding !RenderAR}">
-                <TextBlock Text="Warning: ETS2LA relies heavily on AR elements, only disable if you really need performance." FontSize="12" Classes="Warning" />
+                <TextBlock Text="警告：ETS2LA 高度依赖 AR 元素，只有在确实需要提升性能时才建议禁用。" FontSize="12" Classes="Warning" />
             </StackPanel>
 
         </StackPanel>

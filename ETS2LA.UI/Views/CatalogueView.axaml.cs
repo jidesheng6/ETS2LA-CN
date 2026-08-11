@@ -51,7 +51,7 @@ public partial class CatalogueView : UserControl, INotifyPropertyChanged
 
     private void OnRestartClick(object? sender, RoutedEventArgs e)
     {
-        Logger.Info("Restarting ETS2LA...");
+        Logger.Info("正在重启 ETS2LA...");
         using Process currentProcess = Process.GetCurrentProcess();
         var startInfo = new ProcessStartInfo
         {
@@ -185,6 +185,17 @@ public partial class CatalogueView : UserControl, INotifyPropertyChanged
 
 public class NetworkPluginItem : INotifyPropertyChanged
 {
+    // 插件目录来自网络，使用本地映射覆盖已知插件的英文名称和简介。
+    private static readonly Dictionary<string, (string Name, string Description)> ChinesePluginText = new()
+    {
+        ["tumppi066.pathlib"] = ("路径库", "为其他插件提供路径规划相关的工具和数据结构。"),
+        ["tumppi066.pathfinding"] = ("路径规划", "发布已解析的导航路径数据，供其他插件使用。"),
+        ["tumppi066.laneassist"] = ("车道辅助", "提供简单的车道辅助功能，使用路径规划数据进行车道保持。"),
+        ["tumppi066.internalvisualization"] = ("内部可视化", "打开覆盖层，以易于阅读的方式显示内部地图、车辆和遥测数据。"),
+        ["tumppi066.pidlib"] = ("PID 控制库", "为其他插件提供 PID 控制器实现。"),
+        ["tumppi066.adaptivecruisecontrol"] = ("自适应巡航控制", "提供基于遥测和路径数据的自适应巡航控制功能。")
+    };
+
     private readonly NetworkPlugin _instance;
     private readonly NetworkPluginVersion? _latestVersion;
     private bool _isInstalled;
@@ -192,9 +203,9 @@ public class NetworkPluginItem : INotifyPropertyChanged
     private string CurrentRelease = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
 
     public string Id => _instance.Id;
-    public string Name => _instance.Name;
+    public string Name => ChinesePluginText.TryGetValue(Id, out var text) ? text.Name : _instance.Name;
     public string AutomationName => GetAutomationText();
-    public string Description => _instance.Description;
+    public string Description => ChinesePluginText.TryGetValue(Id, out var text) ? text.Description : _instance.Description;
     public string Version => _latestVersion?.Version ?? "N/A";
     public string SupportedVersion => _latestVersion?.AppVersion ?? "N/A";
     public string Author => _instance.Author;

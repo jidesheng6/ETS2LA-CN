@@ -85,6 +85,8 @@ public abstract class Plugin : IPlugin
 {
     public abstract PluginInformation Info { get; }
     public bool _IsRunning { get; set; } = false;
+    // 每次启停使用独立代次，防止快速重新启用后旧后台线程继续运行。
+    private int _runGeneration;
     /// <summary>
     ///  The tick rate of this plugin in ticks per second. Default is 20.0f TPS. <br/>
     ///  Please do not use a tickrate higher than you need, that will just wait CPU time.
@@ -95,20 +97,24 @@ public abstract class Plugin : IPlugin
 
     public virtual void OnEnable()
     {
+        if (_IsRunning)
+            return;
+
+        int generation = Interlocked.Increment(ref _runGeneration);
         _IsRunning = true;
-        Task.Factory.StartNew(RunningThread, TaskCreationOptions.LongRunning);
+        Task.Factory.StartNew(() => RunningThread(generation), TaskCreationOptions.LongRunning);
     }
 
     /// <summary>
     ///  The main running thread of this plugin. Handles ticking at the defined TickRate.
     /// </summary>
-    protected void RunningThread()
+    protected void RunningThread(int generation)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
         double interval = 1000.0 / TickRate; // ms per tick
         double next = sw.Elapsed.TotalMilliseconds;
 
-        while (_IsRunning)
+        while (_IsRunning && Volatile.Read(ref _runGeneration) == generation)
         {
             // Update interval in case TickRate changed
             interval = 1000.0 / TickRate;
@@ -132,7 +138,7 @@ public abstract class Plugin : IPlugin
 
             // Busy-wait the last bit for better accuracy. This uses some CPU,
             // but ensures we get a stable tickrate.
-            while (_IsRunning && sw.Elapsed.TotalMilliseconds < next)
+            while (_IsRunning && Volatile.Read(ref _runGeneration) == generation && sw.Elapsed.TotalMilliseconds < next)
                 System.Threading.Thread.SpinWait(10);
         }
     }
@@ -142,10 +148,12 @@ public abstract class Plugin : IPlugin
     public virtual void OnDisable()
     {
         _IsRunning = false;
+        Interlocked.Increment(ref _runGeneration);
     }
     public virtual void Shutdown()
     {
         _IsRunning = false;
+        Interlocked.Increment(ref _runGeneration);
     }
 }
 

@@ -16,6 +16,7 @@ namespace ETS2LA.Settings
         // Otherwise saving a file would trigger the listener callback to read it
         // at the same time -> file access conflicts.
         readonly List<string> _savingInProgress = new();
+        readonly Dictionary<string, DateTime> _ignoreWatcherUntil = new(StringComparer.OrdinalIgnoreCase);
 
         readonly Dictionary<string, List<ListenerEntry>> _listeners = new(StringComparer.OrdinalIgnoreCase);
         class ListenerEntry
@@ -67,21 +68,21 @@ namespace ETS2LA.Settings
                 while (retries-- > 0)
                 {
                     try {
-                        if (File.Exists(target)) 
-                        { 
-                            File.Replace(temp, target, null); 
-                            break;
-                        }
-                        else
-                        {
-                            File.Move(temp, target);
-                            break;
-                        }
+                        // File.Replace 在部分 Windows 音频/文件过滤驱动环境下会进入
+                        // 原生递归并触发 0xC00000FD。覆盖移动同样能避免半写入文件，
+                        // 但不经过 ReplaceFile API。
+                        File.Move(temp, target, true);
+                        break;
                     } catch (IOException) when (retries > 1) {
                         Thread.Sleep(50);
                     }
                 }
-                lock (_sync) _savingInProgress.Remove(fileName);
+                lock (_sync)
+                {
+                    _savingInProgress.Remove(fileName);
+                    // FileSystemWatcher 事件可能在写入完成后异步到达，忽略本次保存产生的事件。
+                    _ignoreWatcherUntil[fileName] = DateTime.UtcNow.AddSeconds(2);
+                }
             } catch (Exception ex)
             {
                 lock (_sync) _savingInProgress.Remove(fileName);
@@ -90,8 +91,8 @@ namespace ETS2LA.Settings
                 return false;
             }
 
-            // Manually trigger listeners since FS watcher is ignored during save.
-            HandleFsChange(target, fileName);
+            // 保存时不再手动触发监听器。调用方已经更新了内存对象，
+            // 额外回调会在 Avalonia 初始化期间造成重入和连续布局。
             return true;
         }
 
@@ -168,6 +169,11 @@ namespace ETS2LA.Settings
             lock (_sync)
             {
                 if (_savingInProgress.Contains(name)) return;
+                if (_ignoreWatcherUntil.TryGetValue(name, out var ignoreUntil))
+                {
+                    if (DateTime.UtcNow < ignoreUntil) return;
+                    _ignoreWatcherUntil.Remove(name);
+                }
                 entries = _listeners.TryGetValue(name, out var list) ? new List<ListenerEntry>(list) : null;
             }
             if (entries == null) return;

@@ -8,18 +8,18 @@
         
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Enable Anonymous Telemetry" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTelemetryEnabled}" Classes="primary-toggle" AutomationProperties.Name="Enable Anonymous Telemetry, needs restart" />
+                    <TextBlock Text="启用匿名遥测" VerticalAlignment="Center" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTelemetryEnabled}" Classes="primary-toggle" AutomationProperties.Name="启用匿名遥测，需要重启" />
                 </Grid>
-                <TextBlock Text="Anonymous telemetry helps us improve ETS2LA by giving us insights into users' system specs, crashes, and other usage data. Your data cannot be identified with any personal information." FontSize="12" Classes="Description" />
+                <TextBlock Text="匿名遥测可以帮助我们了解用户的系统配置、崩溃和其他使用数据，从而改进 ETS2LA。数据不会与任何个人信息关联。" FontSize="12" Classes="Description" />
             </StackPanel>
 
             <StackPanel Spacing="12" IsVisible="{Binding NeedsRestart}">
-                <TextBlock Text="This value requires a restart to take effect." FontSize="12" Classes="Warning" />
+                <TextBlock Text="此设置需要重启后生效。" FontSize="12" Classes="Warning" />
             </StackPanel>
 
             <StackPanel Spacing="12">
-                <HyperlinkButton Content="View Public Telemetry Data" NavigateUri="https://telemetry.ets2la.com/public-dashboards/17f53fce4749475c8efcab181b1306f3" FontSize="12" AutomationProperties.Name="View Public Telemetry" />
+                <HyperlinkButton Content="查看公开遥测数据" NavigateUri="https://telemetry.ets2la.com/public-dashboards/17f53fce4749475c8efcab181b1306f3" FontSize="12" AutomationProperties.Name="查看公开遥测数据" />
             </StackPanel>
 
         </StackPanel>

@@ -63,7 +63,7 @@ public partial class SDKSettings : UserControl
 
         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select the game's install folder",
+            Title = "请选择游戏安装文件夹",
             AllowMultiple = false
         });
 
@@ -77,8 +77,8 @@ public partial class SDKSettings : UserControl
             NotificationHandler.Current.SendNotification(new Notification
             {
                 Id = "ETS2LA.UI.SDKSettings.AddGameFailed",
-                Title = "Could not add game",
-                Content = "No ETS2 or ATS executable was found in the selected folder. Please select the game's install folder, for example '.../steamapps/common/Euro Truck Simulator 2'.",
+                Title = "无法添加游戏",
+                Content = "所选文件夹中没有找到 ETS2 或 ATS 可执行文件。请选择游戏安装文件夹，例如“.../steamapps/common/Euro Truck Simulator 2”。",
                 Level = NotificationLevel.Danger
             });
             return;
