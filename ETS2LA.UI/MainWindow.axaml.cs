@@ -9,6 +9,7 @@ using ETS2LA.UI.Services;
 using ETS2LA.UI.Notifications;
 using ETS2LA.Notifications;
 using ETS2LA.UI.Settings;
+using ETS2LA.Shared;
 
 using Huskui.Avalonia.Models;
 using Huskui.Avalonia.Controls;
@@ -58,7 +59,7 @@ public partial class MainWindow : AppWindow
                                          // so we need to add our own drag corner.
         # endif
 
-        VersionText.Text = $"v{System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}";
+        VersionText.Text = AppVersion.GetDisplayVersion();
         UINotificationHandler.Current.SetWindow(this);
 
         pluginService = new PluginManagerService();

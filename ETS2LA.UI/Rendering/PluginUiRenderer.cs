@@ -62,7 +62,7 @@ public static class PluginUiRenderer
             UiInput i => RenderInput(i, handler),
             UiTable t => RenderTable(t),
             UiContainer c => RenderContainer(c, handler),
-            _ => new TextBlock { Text = $"Unsupported element {element.GetType().Name}", Foreground = Brushes.OrangeRed }
+            _ => new TextBlock { Text = $"不支持的元素：{element.GetType().Name}", Foreground = Brushes.OrangeRed }
         };
     }
 

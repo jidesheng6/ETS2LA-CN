@@ -134,8 +134,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.Uninstall",
-                    Title = $"Uninstalled SDK for {Name}",
-                    Content = $"Successfully uninstalled SDK for {Name} at {Path}.",
+                    Title = $"已卸载 {Name} 的 SDK",
+                    Content = $"已成功卸载 {Name}（{Path}）的 SDK。",
                     Level = NotificationLevel.Success
                 });
             }
@@ -145,8 +145,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.UninstallFailed",
-                    Title = $"Failed to uninstall SDK for {Name}",
-                    Content = $"An error occurred while uninstalling SDK for {Name} at {Path}. Please check the logs for more details.",
+                    Title = $"卸载 {Name} 的 SDK 失败",
+                    Content = $"卸载 {Name}（{Path}）的 SDK 时出错，请查看日志。",
                     Level = NotificationLevel.Danger
                 });
             }
@@ -159,8 +159,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.Install",
-                    Title = $"Installed SDK for {Name}",
-                    Content = $"Successfully installed SDK for {Name} at {Path}.",
+                    Title = $"已安装 {Name} 的 SDK",
+                    Content = $"已成功安装 {Name}（{Path}）的 SDK。",
                     Level = NotificationLevel.Success
                 });
             }
@@ -170,8 +170,8 @@ public class GameItem : INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "ETS2LA.UI.SDKSettings.InstallFailed",
-                    Title = $"Failed to install SDK for {Name}",
-                    Content = $"An error occurred while installing SDK for {Name} at {Path}. Please check the logs for more details.",
+                    Title = $"安装 {Name} 的 SDK 失败",
+                    Content = $"安装 {Name}（{Path}）的 SDK 时出错，请查看日志。",
                     Level = NotificationLevel.Danger
                 });
             }
@@ -187,6 +187,6 @@ public class GameItem : INotifyPropertyChanged
 
     private string GetAutomationName()
     {
-        return $"{Name} {Version}, SDK is {(IsSDKInstalled ? "Installed" : "Not Installed")} at {Path}, button";
+        return $"{Name} {Version}，SDK {(IsSDKInstalled ? "已安装" : "未安装")}，路径 {Path}，按钮";
     }
 }

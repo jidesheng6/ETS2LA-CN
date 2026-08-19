@@ -42,7 +42,7 @@
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
                     <TextBlock Text="支持多个视口" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding SupportMultipleViewports}" Classes="primary-toggle" AutomationProperties.Name="Overlay support for multiple viewports" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding SupportMultipleViewports}" Classes="primary-toggle" AutomationProperties.Name="支持多个视口" />
                 </Grid>
                 <TextBlock Text="允许 ETS2LA 使用多个视口，你可以将叠加层窗口移动到任意显示器。" FontSize="12" Classes="Description" />
                 <TextBlock Text="需要重启 ETS2LA 才能应用此选项。" FontSize="12" Classes="Warning" IsVisible="{Binding ChangedSupportMultipleViewports}" />
@@ -51,7 +51,7 @@
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
                     <TextBlock Text="限制叠加层帧率" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding LimitOverlayFramerate}" Classes="primary-toggle" AutomationProperties.Name="Limit overlay framerate" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding LimitOverlayFramerate}" Classes="primary-toggle" AutomationProperties.Name="限制叠加层帧率" />
                 </Grid>
                 <TextBlock Text="在大多数情况下，ETS2LA 一半以上的 CPU 占用来自叠加层。你可以降低叠加层帧率以减少 CPU 和 GPU 使用率。" FontSize="12" Classes="Description" />
             </StackPanel>
@@ -68,8 +68,16 @@
 
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="显示性能浮层" VerticalAlignment="Center" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowPerformanceOverlay}" Classes="primary-toggle" AutomationProperties.Name="显示性能浮层" />
+                </Grid>
+                <TextBlock Text="在屏幕右上角显示覆盖层帧率和空闲时间。默认关闭。" FontSize="12" Classes="Description" />
+            </StackPanel>
+
+            <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*, Auto">
                     <TextBlock Text="渲染 AR 元素" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding RenderAR}" Classes="primary-toggle" AutomationProperties.Name="Render AR elements" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding RenderAR}" Classes="primary-toggle" AutomationProperties.Name="渲染 AR 元素" />
                 </Grid>
                 <TextBlock Text="可以使用叠加层在游戏世界中渲染元素，这会额外占用 CPU 和 GPU 资源。" FontSize="12" Classes="Description" />
             </StackPanel>
@@ -77,7 +85,7 @@
             <StackPanel Spacing="10">
                 <Grid ColumnDefinitions="*, Auto">
                     <TextBlock Text="简化图形" VerticalAlignment="Center" />
-                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding SimplifiedGraphics}" Classes="primary-toggle" AutomationProperties.Name="Simplified graphics" />
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding SimplifiedGraphics}" Classes="primary-toggle" AutomationProperties.Name="简化图形" />
                 </Grid>
                 <TextBlock Text="使用简化图形可以提升低端硬件的性能，也可以解决不支持着色器等高级功能的问题。" FontSize="12" Classes="Description" />
             </StackPanel>

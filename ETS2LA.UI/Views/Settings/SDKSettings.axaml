@@ -55,7 +55,7 @@
                                     <TextBlock Text="{Binding Path}" Classes="Description" FontSize="12" Padding="0 0 0 4" />
                                 </StackPanel>
                                 <TextBox Grid.Column="1" PlaceholderText="输入版本" IsVisible="{Binding IsUnknownVersion}" Text="{Binding UpdatedVersion, Mode=TwoWay}" FontSize="12" Width="200" HorizontalAlignment="Right" />
-                                <Button Grid.Column="2" Content="移除" FontSize="12" IsVisible="{Binding IsManuallyAdded}" Tag="{Binding}" Click="OnRemoveGame" VerticalAlignment="Center" AutomationProperties.Name="{Binding Name, StringFormat='Remove manually added {0}'}" />
+                                <Button Grid.Column="2" Content="移除" FontSize="12" IsVisible="{Binding IsManuallyAdded}" Tag="{Binding}" Click="OnRemoveGame" VerticalAlignment="Center" AutomationProperties.Name="{Binding Name, StringFormat='移除手动添加的 {0}'}" />
                             </Grid>
                         </husk:Card>
                     </DataTemplate>

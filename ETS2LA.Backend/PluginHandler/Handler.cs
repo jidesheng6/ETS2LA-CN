@@ -203,8 +203,8 @@ public class PluginHandler
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "Backend.PluginHandler.Loading",
-            Title = $"Finished loading plugins",
-            Content = $"Loaded {LoadedPlugins.Count} plugins from the Plugins folder.",
+            Title = "插件加载完成",
+            Content = $"已从插件目录加载 {LoadedPlugins.Count} 个插件。",
             CloseAfter = 3,
             Level = NotificationLevel.Success
         });

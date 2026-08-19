@@ -52,7 +52,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
                                             StateSettingsHandler.Current.GetSettings().DisplayUnits
                                         )}";
 
-    public string SpeedControlAutomationName => $"Speed control step size, slider, {SpeedControlStepSize}";
+    public string SpeedControlAutomationName => $"速度控制步长，滑块，{SpeedControlStepSize}";
 
     public int SpeedControlStepSize
     {

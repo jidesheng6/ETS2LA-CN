@@ -51,9 +51,9 @@
                             <TextBlock HorizontalAlignment="Stretch" Text="关注项目开发并获取支持。请注意，此版本的 ETS2LA 仍在开发中。如遇到问题，请提交反馈。" Classes="Description" FontSize="13"/>
                         </StackPanel>
                         <WrapPanel Grid.Row="1" ItemSpacing="8" VerticalAlignment="Bottom">
-                            <Button Content="使用文档" Click="OpenDocumentation" AutomationProperties.Name="Open the ETS2LA Documentation in Browser, button"/>
-                            <Button Content="GitHub" Click="OpenGitHub" AutomationProperties.Name="Open the ETS2LA GitHub in Browser, button"/>
-                            <Button Content="Discord" Click="OpenDiscord" AutomationProperties.Name="Open the ETS2LA Discord in Browser, button"/>
+                            <Button Content="使用文档" Click="OpenDocumentation" AutomationProperties.Name="在浏览器中打开 ETS2LA 文档"/>
+                            <Button Content="GitHub" Click="OpenGitHub" AutomationProperties.Name="在浏览器中打开 ETS2LA GitHub"/>
+                            <Button Content="Discord" Click="OpenDiscord" AutomationProperties.Name="在浏览器中打开 ETS2LA Discord"/>
                         </WrapPanel>
                     </Grid>
                 </husk:Card>
@@ -68,7 +68,7 @@
                             <TextBlock HorizontalAlignment="Stretch" Text="你的支持可以帮助我继续开发 ETS2LA！捐助越多，我就能投入更多时间改进项目。谢谢！" Classes="Description" FontSize="13"/>
                         </StackPanel>
                         <WrapPanel Grid.Row="1" ItemSpacing="8" VerticalAlignment="Bottom">
-                            <Button Content="赞助开发" Click="OpenDonate" Classes="Primary" AutomationProperties.Name="Open Tumppi066's Donation Page in Browser, button"/>
+                            <Button Content="赞助开发" Click="OpenDonate" Classes="Primary" AutomationProperties.Name="在浏览器中打开赞助页面"/>
                         </WrapPanel>
                     </Grid>
                 </husk:Card>

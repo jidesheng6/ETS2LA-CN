@@ -58,9 +58,38 @@ namespace ETS2LA.Overlay
             [DllImport("user32.dll")]
             static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
 
+            [DllImport("user32.dll")]
+            static extern bool IsIconic(IntPtr hWnd);
+
+            private static readonly string[] GameWindowTitles =
+            {
+                "Euro Truck Simulator 2",
+                "American Truck Simulator"
+            };
+
+            public static IntPtr FindGameWindow()
+            {
+                foreach (var title in GameWindowTitles)
+                {
+                    IntPtr hWnd = FindWindow(null, title);
+                    if (hWnd != IntPtr.Zero)
+                        return hWnd;
+                }
+                return IntPtr.Zero;
+            }
+
+            /// <summary>
+            /// 游戏窗口被最小化（常见于 Alt+Tab 切出）时，覆盖层 OpenGL 呈现容易卡住。
+            /// </summary>
+            public static bool IsGameWindowMinimized()
+            {
+                IntPtr hWnd = FindGameWindow();
+                return hWnd != IntPtr.Zero && IsIconic(hWnd);
+            }
+
             public static WindowRect GetGameWindowRect()
             {
-                IntPtr hWnd = FindWindow(null, "Euro Truck Simulator 2");
+                IntPtr hWnd = FindGameWindow();
                 if (hWnd == IntPtr.Zero)
                     return new WindowRect { X = 0, Y = 0, Width = 1, Height = 1 };
 

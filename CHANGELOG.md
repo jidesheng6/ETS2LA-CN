@@ -1,5 +1,13 @@
 # 变更记录
 
+## 3.4.33-zh.4 - 2026-08-19
+
+- 修复更新页/标题栏版本号：不再使用可能为空的 Velopack `CurrentVersion`，统一走 `AppVersion`（InformationalVersion `3.4.33-zh.4`）。
+- 继续汉化设置页、首页无障碍文本、SDK 通知、轴类型菜单、覆盖层交互文案。
+- 覆盖层默认仅开启控制台；AR 与性能浮层默认关闭（一次性迁移旧配置）。
+- 切出/切回游戏时跳过 SwapBuffers，并在呈现超时后跳过重 GPU 帧，缓解覆盖层卡死。
+- 插件覆盖层窗口未声明 Open 时默认关闭。
+
 ## 3.4.33-zh.3 - 2026-08-19
 
 - 建立 `ETS2LA.UI/Localization/UiStrings.cs` 集中管理 UI 字符串与枚举映射。

@@ -5,6 +5,7 @@ using ETS2LA.Backend.Events;
 using ETS2LA.Backend.Plugins;
 using ETS2LA.Notifications;
 using ETS2LA.Logging;
+using ETS2LA.Shared;
 
 using System;
 using System.Net.Http;
@@ -94,7 +95,7 @@ public class PluginApiClient
             return false;
         }
 
-        var appVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
+        var appVersion = AppVersion.GetCompatibilityVersion();
         OperatingSystem currentOS = Environment.OSVersion.Platform != PlatformID.Unix ? OperatingSystem.Windows : OperatingSystem.Linux;
         var latestVersion = plugin.GetLatestCompatibleVersion(appVersion, currentOS);
 
@@ -116,7 +117,7 @@ public class PluginApiClient
             return false;   
         }
 
-        var appVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
+        var appVersion = AppVersion.GetCompatibilityVersion();
         OperatingSystem currentOS = Environment.OSVersion.Platform != PlatformID.Unix ? OperatingSystem.Windows : OperatingSystem.Linux;
         var latestVersion = plugin.GetLatestCompatibleVersion(appVersion, currentOS);
         if (latestVersion == null)

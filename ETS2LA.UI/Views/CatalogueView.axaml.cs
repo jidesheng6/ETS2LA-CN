@@ -193,7 +193,7 @@ public class NetworkPluginItem : INotifyPropertyChanged
     private readonly NetworkPluginVersion? _latestVersion;
     private bool _isInstalled;
 
-    private string CurrentRelease = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0.0.0";
+    private string CurrentRelease = AppVersion.GetCompatibilityVersion();
 
     public string Id => _instance.Id;
     public string Name => ChinesePluginText.TryGetValue(Id, out var text) ? text.Name : _instance.Name;

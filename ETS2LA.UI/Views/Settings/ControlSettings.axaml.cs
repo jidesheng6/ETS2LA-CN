@@ -10,6 +10,7 @@ using ETS2LA.Controls;
 using ETS2LA.Logging;
 using ETS2LA.Shared;
 using ETS2LA.Notifications;
+using ETS2LA.UI.Localization;
 using Huskui.Avalonia.Models;
 
 namespace ETS2LA.UI.Views.Settings;
@@ -319,7 +320,7 @@ public class ControlItem : INotifyPropertyChanged
         if (isHat)
             return "方向帽 " + _instance.ControlId.ToString()?.Split(" ")?.ElementAtOrDefault(1);
 
-        return _instance.AxisBehavior.ToString() + "轴";
+        return UiStrings.FormatEnumOption(_instance.AxisBehavior.ToString()) + "轴";
     }
 
     private string GetAutomationName()

@@ -40,7 +40,7 @@
                 <TabStrip ItemsSource="{Binding DataFidelityOptions}" 
                         SelectedIndex="{Binding SelectedDataFidelityOption}" 
                         SelectionChanged="OnDataFidelityChanged"
-                        AutomationProperties.Name="Data Fidelity selection, high values use more RAM">
+                        AutomationProperties.Name="数据精度，数值越高占用内存越多">
 
                     <TabStrip.Styles>
                         <Style Selector="TabStripItem" x:DataType="views:TabStripItemHandler">
@@ -89,7 +89,7 @@
                 <TabStrip ItemsSource="{Binding CurveQualityOptions}" 
                         SelectedIndex="{Binding SelectedCurveQualityOption}" 
                         SelectionChanged="OnCurveQualityChanged"
-                        AutomationProperties.Name="Curve quality">
+                        AutomationProperties.Name="曲线质量">
 
                     <TabStrip.Styles>
                         <Style Selector="TabStripItem" x:DataType="views:TabStripItemHandler">

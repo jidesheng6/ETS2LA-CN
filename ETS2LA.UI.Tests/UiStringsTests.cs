@@ -34,6 +34,7 @@ public class UiStringsTests
     [InlineData("Low", "低")]
     [InlineData("MatchGame", "匹配游戏")]
     [InlineData("Metric", "公制")]
+    [InlineData("SplitNeg", "分离负向")]
     public void FormatEnumOption_MapsKnownValues(string input, string expected)
     {
         Assert.Equal(expected, UiStrings.FormatEnumOption(input));

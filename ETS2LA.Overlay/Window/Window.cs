@@ -9,7 +9,7 @@ class InternalWindow
     public Action Render = () => { };
     public Action RenderContextMenu = () => { };
 
-    public bool IsWindowOpen = true;
+    public bool IsWindowOpen = false;
 }
 
 class ExternalWindow : InternalWindow

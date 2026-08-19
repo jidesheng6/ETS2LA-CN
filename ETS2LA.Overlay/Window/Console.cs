@@ -20,6 +20,8 @@ class ConsoleWindow : InternalWindow
             Alpha = 0.5f
         };
 
+        IsWindowOpen = true;
+
         Render = () =>
         {
             for(int i = _logLength; i > 0; i--)

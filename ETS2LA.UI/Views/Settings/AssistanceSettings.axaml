@@ -77,7 +77,7 @@
                 <TabStrip ItemsSource="{Binding SteeringSensitivityOptions}" 
                         SelectedIndex="{Binding SelectedSteeringSensitivityOption}" 
                         SelectionChanged="OnSteeringSensitivityChanged"
-                        AutomationProperties.Name="Steering response">
+                        AutomationProperties.Name="转向响应">
 
                     <TabStrip.Styles>
                         <Style Selector="TabStripItem" x:DataType="views:TabStripItemHandler">
@@ -103,7 +103,7 @@
                 <TabStrip ItemsSource="{Binding AccelerationOptions}" 
                         SelectedIndex="{Binding SelectedAccelerationOption}"
                         SelectionChanged="OnAccelerationOptionChanged"
-                        AutomationProperties.Name="Acceleration response">
+                        AutomationProperties.Name="加速响应">
 
                     <TabStrip.Styles>
                         <Style Selector="TabStripItem" x:DataType="views:TabStripItemHandler">

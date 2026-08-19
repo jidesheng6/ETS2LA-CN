@@ -80,6 +80,20 @@ public partial class DisplaySettings : UserControl, INotifyPropertyChanged
         }
     }
 
+    public bool ShowPerformanceOverlay
+    {
+        get => OverlaySettingsHandler.Current.GetSettings().ShowPerformanceOverlay;
+        set
+        {
+            if (OverlaySettingsHandler.Current.GetSettings().ShowPerformanceOverlay != value)
+            {
+                OverlaySettingsHandler.Current.GetSettings().ShowPerformanceOverlay = value;
+                OverlaySettingsHandler.Current.Save();
+            }
+            OnPropertyChanged(nameof(ShowPerformanceOverlay));
+        }
+    }
+
     public bool SimplifiedGraphics
     {
         get => OverlaySettingsHandler.Current.GetSettings().SimplifiedGraphics;

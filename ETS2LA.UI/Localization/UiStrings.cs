@@ -40,6 +40,8 @@ public static class UiStrings
         "Inverted" => "反转",
         "SplitNegative" => "分离负向",
         "SplitPositive" => "分离正向",
+        "SplitNeg" => "分离负向",
+        "SplitPos" => "分离正向",
         _ => option
     };
 

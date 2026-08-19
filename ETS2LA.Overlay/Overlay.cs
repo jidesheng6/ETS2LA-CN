@@ -1,4 +1,4 @@
-﻿// Much of this file is based on the Hexa.NET.ImGui example code. See the relevant example here:
+// Much of this file is based on the Hexa.NET.ImGui example code. See the relevant example here:
 // https://github.com/HexaEngine/Hexa.NET.ImGui/blob/main/Examples/ExampleGLFWOpenGL3/Program.cs
 
 using Hexa.NET.GLFW;
@@ -53,6 +53,8 @@ public class OverlayHandler
     private bool isInteracting = false;
     private float bgOpacityTarget = 0.0f;
     private bool shutdown = false;
+    private int recoverSkipFrames = 0;
+    private int consecutiveSlowPresents = 0;
     private List<float> frameTimes = new List<float>();
     private List<double> remainingMs = new List<double>();
     
@@ -166,13 +168,22 @@ public class OverlayHandler
 
             GLFW.PollEvents();
 
-            // Skip rendering if we're minimized, though this should actually
-            // never happen for the overlay.
-            if (GLFW.GetWindowAttrib(glfwWindow, GLFW.GLFW_ICONIFIED) != 0)
+            bool overlayIconified = GLFW.GetWindowAttrib(glfwWindow, GLFW.GLFW_ICONIFIED) != 0;
+            bool gameMinimized = false;
+            #if WINDOWS
+            gameMinimized = GameWindowManager.IsGameWindowMinimized();
+            #endif
+
+            // 切出游戏或覆盖层被最小化时，跳过 SwapBuffers。独占全屏归还 GPU 时 Present 可能无限阻塞。
+            if (overlayIconified || gameMinimized)
             {
-                ImGuiImplGLFW.Sleep(10);
+                recoverSkipFrames = 5;
+                ImGuiImplGLFW.Sleep(50);
                 continue;
             }
+
+            if (recoverSkipFrames > 0)
+                recoverSkipFrames--;
 
             GLFW.MakeContextCurrent(glfwWindow);
 
@@ -181,7 +192,8 @@ public class OverlayHandler
             ImGui.NewFrame();
 
             // This renders the virtual cameras into their respective framebuffers.
-            if (MLSettings.Current.RenderVisionCameras)
+            bool skipHeavyGpu = recoverSkipFrames > 0 || consecutiveSlowPresents >= 2;
+            if (!skipHeavyGpu && MLSettings.Current.RenderVisionCameras)
                 VisionHandler.Current.Render();
 
             gl.Viewport(0, 0, (int)OverlayWidth, (int)OverlayHeight);
@@ -200,7 +212,7 @@ public class OverlayHandler
                     }
                 }
                 bool paused = GameTelemetry.Current.GetCurrentData().paused;
-                if (overlaySettings.RenderAR && (!overlaySettings.DontRenderWhenPaused || !paused)) AR.Render(); 
+                if (!skipHeavyGpu && overlaySettings.RenderAR && (!overlaySettings.DontRenderWhenPaused || !paused)) AR.Render(); 
             }
             catch (Exception ex) {
                 Logger.Error($"Error in AR rendering: {ex}");
@@ -231,7 +243,30 @@ public class OverlayHandler
             }
 
             GLFW.SwapInterval(0); // disable vsync
-            GLFW.SwapBuffers(glfwWindow);
+            var presentWatch = Stopwatch.StartNew();
+            try
+            {
+                GLFW.SwapBuffers(glfwWindow);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"覆盖层 SwapBuffers 失败：{ex.Message}");
+                consecutiveSlowPresents++;
+                recoverSkipFrames = 5;
+                ImGuiImplGLFW.Sleep(50);
+                continue;
+            }
+
+            if (presentWatch.ElapsedMilliseconds > 250)
+            {
+                consecutiveSlowPresents++;
+                recoverSkipFrames = Math.Max(recoverSkipFrames, 3);
+                Logger.Warn($"覆盖层呈现耗时 {presentWatch.ElapsedMilliseconds}ms，可能刚从游戏切出切回。已跳过随后的重 GPU 帧。");
+            }
+            else
+            {
+                consecutiveSlowPresents = 0;
+            }
 
             double remaining = next - fs.Elapsed.TotalMilliseconds;
             if (remaining > 1.0)
@@ -264,9 +299,9 @@ public class OverlayHandler
     {
         if (isInteracting)
         {
-            ImGui.Begin("Interaction Mode", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
+            ImGui.Begin("交互模式", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
             ImGui.SetWindowPos(new Vector2(OverlayWidth / 2 - 60, 10), ImGuiCond.Always);
-            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1f), "Interaction Mode");
+            ImGui.TextColored(new Vector4(0.5f, 0.5f, 0.5f, 1f), "交互模式");
 
             ImGui.Spacing();
             try
@@ -287,7 +322,7 @@ public class OverlayHandler
         
                     if (ImGui.IsItemHovered())
                     {
-                        ImGui.SetTooltip("Click to " + (isOpen ? "hide" : "show") + " this window");
+                        ImGui.SetTooltip("点击以" + (isOpen ? "隐藏" : "显示") + "此窗口");
                     }
                     if (ImGui.IsItemClicked())
                     {
@@ -301,18 +336,21 @@ public class OverlayHandler
             ImGui.End();
         }
 
-        ImGui.SetNextWindowPos(new Vector2(OverlayWidth - 10, 10), ImGuiCond.Always, new Vector2(1f, 0f));
-        ImGui.Begin("Performance Overlay", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
+        if (overlaySettings.ShowPerformanceOverlay)
+        {
+            ImGui.SetNextWindowPos(new Vector2(OverlayWidth - 10, 10), ImGuiCond.Always, new Vector2(1f, 0f));
+            ImGui.Begin("性能浮层", ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoBackground);
 
-        var fps = (AverageFrameTime > 0) ? (int)(1 / (AverageFrameTime / 1000f)) : 0;
-        int freePercentage;
-        if (overlaySettings.LimitFramerate)
-            freePercentage = (int)(AverageRemainingTime / (1000f / overlaySettings.MaxFramerate) * 100f);
-        else
-            freePercentage = (int)(AverageRemainingTime / (1000f / OverlayMonitorRefreshRate) * 100f);
-        
-        ImGui.TextColored(new Vector4(1f,1f,1f,0.5f), $"{(int)(1/(AverageFrameTime / 1000f))}\n{freePercentage}%%");
-        ImGui.End();
+            var fps = (AverageFrameTime > 0) ? (int)(1 / (AverageFrameTime / 1000f)) : 0;
+            int freePercentage;
+            if (overlaySettings.LimitFramerate)
+                freePercentage = (int)(AverageRemainingTime / (1000f / overlaySettings.MaxFramerate) * 100f);
+            else
+                freePercentage = (int)(AverageRemainingTime / (1000f / OverlayMonitorRefreshRate) * 100f);
+            
+            ImGui.TextColored(new Vector4(1f,1f,1f,0.5f), $"{(int)(1/(AverageFrameTime / 1000f))}\n{freePercentage}%%");
+            ImGui.End();
+        }
 
         InternalWindow[] renderSnapshot;
         lock (windowsLock)
@@ -421,7 +459,7 @@ public class OverlayHandler
         if (ImGui.BeginPopupContextWindow((byte*)0, ImGuiPopupFlags.MouseButtonRight))
         {
             window.RenderContextMenu();
-            if (ImGui.MenuItem("Close"))
+            if (ImGui.MenuItem("关闭"))
             {
                 window.IsWindowOpen = false;
             }
@@ -535,7 +573,7 @@ public class OverlayHandler
             GLFW.InitHint(GLFW.GLFW_PLATFORM, GLFW.GLFW_PLATFORM_X11);
         }
 
-        Console.WriteLine("Initializing GLFW...");
+        Console.WriteLine("正在初始化 GLFW...");
         GLFW.Init();
         GLFW.WindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
         GLFW.WindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -586,10 +624,8 @@ public class OverlayHandler
             }
 
             var newWindow = new ExternalWindow(def, renderAction, renderContextMenuAction.GetValueOrDefault(() => { }));
-            if (def.Open.HasValue)
-            {
-                newWindow.IsWindowOpen = def.Open.Value;
-            }
+            // 未声明 Open 时默认关闭，避免插件窗口一加载就铺满游戏画面。
+            newWindow.IsWindowOpen = def.Open.HasValue && def.Open.Value;
 
             windows.Add(newWindow);
         }

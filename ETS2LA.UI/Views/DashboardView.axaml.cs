@@ -1,21 +1,21 @@
-using System.Reflection;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Diagnostics;
 using ETS2LA.Logging;
+using ETS2LA.Shared;
 
 namespace ETS2LA.UI.Views;
 
 public partial class DashboardView : UserControl
 {
 
-    public string CurrentRelease { get; set; } = "Unknown";
+    public string CurrentRelease { get; set; } = "未知";
     public int UsersOnline { get; set; } = 123;
     public int UsersOver24h { get; set; } = 456;
 
     public DashboardView()
     {
-        CurrentRelease = $"v{Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)}";
+        CurrentRelease = AppVersion.GetDisplayVersion();
         InitializeComponent();
         DataContext = this;
     }

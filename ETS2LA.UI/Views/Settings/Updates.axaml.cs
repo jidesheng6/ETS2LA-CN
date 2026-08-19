@@ -26,7 +26,7 @@ public partial class Updates : UserControl, INotifyPropertyChanged
     public Updates()
     {
         _updater = Updater.Current;
-        CurrentVersion = $"v{_updater.UpdateManager.CurrentVersion}";
+        CurrentVersion = AppVersion.GetDisplayVersion();
         InitializeComponent();
         DataContext = this;
         MainWindow.WindowOpened += (s, e) => OnCheckForUpdatesClick(this, new Avalonia.Interactivity.RoutedEventArgs());
