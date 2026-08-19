@@ -4,6 +4,7 @@ using Huskui.Avalonia.Models;
 using ETS2LA.Shared;
 using ETS2LA.Networking.Updates;
 using ETS2LA.Notifications;
+using ETS2LA.UI.Localization;
 
 using Velopack;
 using System.ComponentModel;
@@ -14,9 +15,9 @@ public partial class Updates : UserControl, INotifyPropertyChanged
 {
     private Updater _updater;
 
-    public string CurrentVersion { get; set; } = "Unknown";
+    public string CurrentVersion { get; set; } = UiStrings.Unknown;
     public bool IsUpdateAvailable => LatestUpdateInfo != null;
-    public string LatestVersion => LatestUpdateInfo != null ? $"v{LatestUpdateInfo.TargetFullRelease.Version}" : "N/A";
+    public string LatestVersion => LatestUpdateInfo != null ? $"v{LatestUpdateInfo.TargetFullRelease.Version}" : UiStrings.NotAvailable;
     public string ReleaseNotes => GetReleaseNotes();
 
     public UpdateInfo? LatestUpdateInfo { get; set; }
@@ -102,7 +103,7 @@ public partial class Updates : UserControl, INotifyPropertyChanged
         {
             Id = "UpdateDownloadProgress",
             Title = "正在下载更新",
-            Content = $"Download progress: {progress}%",
+            Content = $"下载进度：{progress}%",
             Level = NotificationLevel.Information,
             Progress = progress,
             CloseAfter = 0

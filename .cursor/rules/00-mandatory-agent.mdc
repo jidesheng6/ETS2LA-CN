@@ -59,3 +59,39 @@ alwaysApply: true
 ## 7. 参考文档
 
 详细路径与启动方式见仓库根目录 `DEV-SETUP.md`。
+
+## 8. Git 远程与推送（强制知晓）
+
+本仓库使用双 remote 模型：
+
+| Remote | 地址 | 用途 |
+|--------|------|------|
+| `origin` | `https://github.com/QuiYe666/ETS2LA-CN.git` | 上游 fork 源 |
+| `fork` | `https://github.com/jidesheng6/ETS2LA-CN.git` | **个人 fork，推送目标** |
+
+**首次配置 fork remote：**
+
+```powershell
+git remote add fork https://github.com/jidesheng6/ETS2LA-CN.git
+```
+
+**推送功能分支到个人 fork：**
+
+```powershell
+git push -u fork feature/分支名
+```
+
+- 默认 `git push` 若未设置 upstream，需显式指定 `fork`。
+- **不主动创建 PR**；功能验证通过后，等待用户通知再提交 PR。
+- 提交信息必须使用中文。
+
+## 9. 网络代理（强制）
+
+下载国外资源（GitHub、npm、Release 包等）时，使用本地代理：
+
+```powershell
+$env:HTTP_PROXY = "http://127.0.0.1:7890"
+$env:HTTPS_PROXY = "http://127.0.0.1:7890"
+```
+
+适用场景：`git clone`、`git push`、`npm install`、`Invoke-WebRequest`、GitHub CLI 等。

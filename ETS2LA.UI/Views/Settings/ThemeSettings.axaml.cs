@@ -42,13 +42,7 @@ public partial class ThemeSettings : UserControl
     private void ChangeTheme(string theme)
     {
         if (!loaded) return;
-        theme = theme switch
-        {
-            "浅色" => "Light",
-            "深色" => "Dark",
-            "跟随系统" => "System",
-            _ => theme
-        };
+        theme = Localization.UiStrings.ThemeToStorage(theme);
         CurrentTheme = theme.ToLower() switch
         {
             "light" => ThemeVariant.Light,

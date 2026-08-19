@@ -24,14 +24,17 @@ public class VisionHandler
 
     private int viewDistance = 300;
     private float nodeUpdateInterval = 5f; // seconds
+    private readonly object geometryLock = new();
     private IReadOnlyList<Node> nearbyNodes = new List<Node>();
     private List<Vector3> roadGeometryBuffer = new();
+    private Vector3[]? roadVertexScratch;
 
     private SolidColor? solidColor;
     private RoadMesh? roadMesh;
     private VehicleMesh? vehicleMesh;
 
     private bool shutdown = false;
+    private Thread? updateThread;
 
     public bool Initialized => gl != null;
 
@@ -44,10 +47,6 @@ public class VisionHandler
         this.gl = gl;
         gl.DepthMask(true);
         
-        // AddCamera("Left", 320, 480, 
-        //     fieldOfView: 45f,
-        //     rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitY, -MathF.PI / 1.1f), 
-        //     offset: new Vector3(1.25f, -0.5f, -2.5f));
         AddCamera("Front", 480, 480, 
             rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 10f), 
             offset: new Vector3(0f, -1f, 3f));
@@ -55,25 +54,27 @@ public class VisionHandler
             fieldOfView: 14f,
             rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitX, MathF.PI / 2f), 
             offset: new Vector3(0f, -900f, 0f));
-        // AddCamera("Right", 320, 480, 
-        //     fieldOfView: 45f,
-        //     rotation: Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 1.1f), 
-        //     offset: new Vector3(-1.25f, -0.5f, -2.5f));
 
         solidColor = new SolidColor(gl);
         roadMesh = new RoadMesh(gl);
         vehicleMesh = new VehicleMesh(gl);
 
-        Task.Run(() =>
+        updateThread = new Thread(UpdateLoop)
         {
-            while (!shutdown)
-            {
-                UpdateNearbyNodes();
-                Thread.Sleep((int)(nodeUpdateInterval * 1000));
-            }
-        });
+            IsBackground = true,
+            Name = "VisionHandler-Update"
+        };
+        updateThread.Start();
     }
 
+    private void UpdateLoop()
+    {
+        while (!shutdown)
+        {
+            UpdateNearbyNodes();
+            Thread.Sleep((int)(nodeUpdateInterval * 1000));
+        }
+    }
 
     private void UpdateNearbyNodes()
     {
@@ -85,9 +86,14 @@ public class VisionHandler
         double maxX = center.X + viewDistance;
         double minZ = center.Z - viewDistance;
         double maxZ = center.Z + viewDistance;
-        nearbyNodes = ApplicationState.Current.RunningGame?.GetMapData()?.Nodes.Within(minX, minZ, maxX, maxZ) ?? new List<Node>();
+        var nodes = ApplicationState.Current.RunningGame?.GetMapData()?.Nodes.Within(minX, minZ, maxX, maxZ) ?? new List<Node>();
+        var geometry = VisionRoadUtils.BuildRoadGeometry(nodes.ToArray());
 
-        roadGeometryBuffer = VisionRoadUtils.BuildRoadGeometry(nearbyNodes.ToArray());
+        lock (geometryLock)
+        {
+            nearbyNodes = nodes;
+            roadGeometryBuffer = geometry;
+        }
     }
 
     public void Render()
@@ -102,16 +108,21 @@ public class VisionHandler
         euler.Y = -euler.Y - (float)Math.PI;
         truckRot = Quaternion.CreateFromYawPitchRoll(euler.Y, euler.X, euler.Z);
 
-        // For road / prefab rendering
-        Vector3[] currentFrameRoadVertices = new Vector3[roadGeometryBuffer.Count + 1];
-        for (int i = 0; i < roadGeometryBuffer.Count; i++)
+        List<Vector3> roadSnapshot;
+        lock (geometryLock)
         {
-            try { currentFrameRoadVertices[i] = roadGeometryBuffer[i] - center; }
-            catch { }
+            roadSnapshot = roadGeometryBuffer;
         }
-        roadMesh?.UpdateVertices(currentFrameRoadVertices);
 
-        // For vehicle rendering
+        int roadCount = roadSnapshot.Count;
+        if (roadVertexScratch == null || roadVertexScratch.Length != roadCount)
+            roadVertexScratch = new Vector3[roadCount];
+
+        for (int i = 0; i < roadCount; i++)
+            roadVertexScratch[i] = roadSnapshot[i] - center;
+
+        roadMesh?.UpdateVertices(roadVertexScratch);
+
         var vehicleVertices = VisionVehicleUtils.BuildVehicleGeometry(
                                 TrafficProvider.Current.GetCurrentTrafficData(),
                                 ParkedVehiclesProvider.Current.GetCurrentParkedVehicleData());
@@ -150,5 +161,6 @@ public class VisionHandler
     public void Shutdown()
     {
         shutdown = true;
+        updateThread?.Join(TimeSpan.FromSeconds(2));
     }
 }

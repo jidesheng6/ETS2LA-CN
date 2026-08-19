@@ -154,3 +154,24 @@ D:\Tools\codedb-mcp\skills\codedb-mcp\assets\codebase-mcp.exe `
 $env:HTTP_PROXY = "http://127.0.0.1:7890"
 $env:HTTPS_PROXY = "http://127.0.0.1:7890"
 ```
+
+## 七、Git 远程与推送
+
+| Remote | 地址 | 用途 |
+|--------|------|------|
+| `origin` | `https://github.com/QuiYe666/ETS2LA-CN.git` | 上游 fork 源 |
+| `fork` | `https://github.com/jidesheng6/ETS2LA-CN.git` | 个人 fork（推送目标） |
+
+```powershell
+# 首次添加 fork remote
+git remote add fork https://github.com/jidesheng6/ETS2LA-CN.git
+
+# 推送功能分支
+git push -u fork feature/分支名
+
+# 使用 GitHub CLI（D:\Tools\gh\gh.exe）
+D:\Tools\gh\gh.exe auth login
+D:\Tools\gh\gh.exe repo fork QuiYe666/ETS2LA-CN --clone=false --remote=true
+```
+
+> 不主动创建 PR，功能验证通过后由用户决定是否提交。

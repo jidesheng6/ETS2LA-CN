@@ -22,9 +22,9 @@ static class Utils
         if (ex is AggregateException aggregate)
             ex = aggregate.Flatten().InnerExceptions.FirstOrDefault() ?? ex;
 
-        string errorMessage = $"ETS2LA has encountered a fatal error.\n\n" +
-                              $"Error: {ex.Message}\n\n" +
-                              $"Stack Trace:\n{ex.StackTrace}";
+        string errorMessage = $"ETS2LA 遇到致命错误。\n\n" +
+                              $"错误：{ex.Message}\n\n" +
+                              $"堆栈跟踪：\n{ex.StackTrace}";
 
         // This logs to OpenTelemetry. The log won't go through if the user has telemetry disabled though...
         try

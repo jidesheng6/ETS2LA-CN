@@ -14,11 +14,11 @@ public class OnboardingPart1
 
     public Tutorial Create()
     {
-        return new Tutorial("OnboardingPart1", "Onboarding until the catalogue plugins were installed.", "ETS2LA", new List<TutorialSection>
+        return new Tutorial("OnboardingPart1", "从入门到插件目录安装完成的新手引导。", "ETS2LA", new List<TutorialSection>
         {
             new TutorialSection
             {
-                Title = "Introduction to the overlay",
+                Title = "覆盖层介绍",
                 Actions = new List<TutorialAction>
                 {
                     new ShowImguiWindowAction
@@ -58,12 +58,12 @@ public class OnboardingPart1
             },
             new TutorialSection
             {
-                Title = "Introduction to the User Interface",
+                Title = "用户界面介绍",
                 Actions = new List<TutorialAction>
                 {
                     new ShowMessageAction
                     {
-                        Message = "This sidebar has everything you need.\nLet's go to the catalogue page to start with.",
+                        Message = "侧边栏包含你需要的所有功能。\n让我们先进入插件目录页面。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -77,7 +77,7 @@ public class OnboardingPart1
                     },
                     new ShowMessageAction
                     {
-                        Message = "You'll want to install the 'Lane Assist' and 'Adaptive Cruise Control' plugins.",
+                        Message = "建议安装「车道辅助」和「自适应巡航控制」插件。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -91,7 +91,7 @@ public class OnboardingPart1
                     },
                     new ShowMessageAction
                     {
-                        Message = "You might've noticed we automatically installed dependencies.\nEvery time you install/uninstall plugins or libraries, you need\nto restart ETS2LA. On some systems you may need to restart ETS2LA yourself.",
+                        Message = "你可能已经注意到我们会自动安装依赖项。\n每次安装/卸载插件或库后，都需要重启 ETS2LA。部分系统可能需要你手动重启。",
                         ScreenPositionCallback = () =>
                         {
                             var position = ETS2LAWindowLocation();
@@ -114,35 +114,34 @@ public class OnboardingPart1
 
     private void WelcomePage()
     {
-        // Pad top
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 100);
 
         ImGui.PushFont(OverlayHandler.Current.Fonts[FontStyle.Bold], 20);
-        AlignForWidth(ImGui.CalcTextSize("Welcome to ETS2LA!").X);
-        ImGui.Text("Welcome to ETS2LA!");
+        AlignForWidth(ImGui.CalcTextSize("欢迎使用 ETS2LA！").X);
+        ImGui.Text("欢迎使用 ETS2LA！");
         ImGui.Spacing();
         ImGui.PopFont();
 
-        AlignForWidth(ImGui.CalcTextSize("Let's start off by familiarizing you to our User Interface.").X);
-        ImGui.Text("Let's start off by familiarizing you to our User Interface.");
-        AlignForWidth(ImGui.CalcTextSize("The window you're seeing right now is an overlay.").X);
-        ImGui.Text("The window you're seeing right now is an overlay.");
+        AlignForWidth(ImGui.CalcTextSize("让我们先熟悉一下用户界面。").X);
+        ImGui.Text("让我们先熟悉一下用户界面。");
+        AlignForWidth(ImGui.CalcTextSize("你现在看到的窗口是一个覆盖层。").X);
+        ImGui.Text("你现在看到的窗口是一个覆盖层。");
         ImGui.Spacing();
         ImGui.Spacing();
 
-        AlignForWidth(ImGui.CalcTextSize("You can continue by holding down the overlay interaction key.").X);
-        ImGui.Text("You can continue by holding down the overlay interaction key.");
+        AlignForWidth(ImGui.CalcTextSize("按住覆盖层交互键即可继续。").X);
+        ImGui.Text("按住覆盖层交互键即可继续。");
 
         # if LINUX
-        AlignForWidth(ImGui.CalcTextSize("Note: You're on Linux, make sure you are allowing X11 global hotkeys on keys you need.").X);
-        ImGui.TextColored(new Vector4(0.6f, 0.6f, 0.6f, 1f), "Note: You're on Linux, make sure you are allowing X11 global hotkeys on keys you need.");
+        AlignForWidth(ImGui.CalcTextSize("注意：你正在使用 Linux，请确保允许 X11 全局快捷键。").X);
+        ImGui.TextColored(new Vector4(0.6f, 0.6f, 0.6f, 1f), "注意：你正在使用 Linux，请确保允许 X11 全局快捷键。");
         ImGui.Spacing();
         ImGui.Spacing();
         # endif
 
         var controls = ControlsBackend.Current.GetRegisteredControls();        
         var interactKey = controls.FirstOrDefault(c => c.Definition.Id == OverlayHandler.Current.Interact.Id);
-        var text = interactKey != null ? interactKey.ControlId.ToString() : "UNBOUND";
+        var text = interactKey != null ? interactKey.ControlId.ToString() : "未绑定";
 
         AlignForWidth(ImGui.CalcTextSize(text).X);
         ImGui.PushFont(OverlayHandler.Current.Fonts[FontStyle.Bold], 18f);
@@ -161,29 +160,28 @@ public class OnboardingPart1
             }
         }
 
-        // Pad top
         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + 100);
 
         if (!hasMoved)
         {
             ImGui.PushFont(OverlayHandler.Current.Fonts[FontStyle.Bold], 20);
-            AlignForWidth(ImGui.CalcTextSize("Great!").X);
-            ImGui.Text("Great!");
+            AlignForWidth(ImGui.CalcTextSize("很好！").X);
+            ImGui.Text("很好！");
             ImGui.Spacing();
             ImGui.PopFont();
 
-            AlignForWidth(ImGui.CalcTextSize("This overlay is used for many features in ETS2LA.").X);
-            ImGui.Text("This overlay is used for many features in ETS2LA.");
-            AlignForWidth(ImGui.CalcTextSize("If you don't like the keybind you can always change it in the settings later.").X);
-            ImGui.Text("If you don't like the keybind you can always change it in the settings later.");
+            AlignForWidth(ImGui.CalcTextSize("这个覆盖层用于 ETS2LA 的多种功能。").X);
+            ImGui.Text("这个覆盖层用于 ETS2LA 的多种功能。");
+            AlignForWidth(ImGui.CalcTextSize("如果不喜欢当前按键，可以稍后在设置中更改。").X);
+            ImGui.Text("如果不喜欢当前按键，可以稍后在设置中更改。");
             ImGui.Spacing();
             ImGui.Spacing();
 
-            AlignForWidth(ImGui.CalcTextSize("Now that we're in overlay mode, you can interact with windows.").X);
-            ImGui.Text("Now that we're in overlay mode, you can interact with windows.");
+            AlignForWidth(ImGui.CalcTextSize("进入覆盖层交互模式后，你可以与窗口交互。").X);
+            ImGui.Text("进入覆盖层交互模式后，你可以与窗口交互。");
 
-            AlignForWidth(ImGui.CalcTextSize("Try to move this window around by dragging it!").X);
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Try to move this window around by dragging it!");
+            AlignForWidth(ImGui.CalcTextSize("试试拖动这个窗口！").X);
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "试试拖动这个窗口！");
             ImGui.Spacing();
             ImGui.Spacing();
         }
@@ -191,17 +189,17 @@ public class OnboardingPart1
         if (hasMoved)
         {
             ImGui.PushFont(OverlayHandler.Current.Fonts[FontStyle.Bold], 20);
-            AlignForWidth(ImGui.CalcTextSize("Fantastic!").X);
-            ImGui.Text("Fantastic!");
+            AlignForWidth(ImGui.CalcTextSize("太棒了！").X);
+            ImGui.Text("太棒了！");
             ImGui.Spacing();
             ImGui.PopFont();
             
-            AlignForWidth(ImGui.CalcTextSize("Remember, if you need to interact with overlay windows, enter interaction mode first!").X);
-            ImGui.Text("Remember, if you need to interact with overlay windows, enter interaction mode first!");
+            AlignForWidth(ImGui.CalcTextSize("记住：与覆盖层窗口交互前，请先进入交互模式！").X);
+            ImGui.Text("记住：与覆盖层窗口交互前，请先进入交互模式！");
             ImGui.Spacing();
 
-            AlignForWidth(ImGui.CalcTextSize("Exit overlay interaction mode to continue.").X);
-            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "Exit overlay interaction mode to continue.");
+            AlignForWidth(ImGui.CalcTextSize("退出覆盖层交互模式以继续。").X);
+            ImGui.TextColored(new Vector4(0.5f, 1f, 0.5f, 1f), "退出覆盖层交互模式以继续。");
         }
     }
 

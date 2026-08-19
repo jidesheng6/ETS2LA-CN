@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using ETS2LA.UI.Localization;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using ETS2LA.Settings.Global;
@@ -69,12 +70,12 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         }
     }
 
-    public string SnapTo10UnitsDisplay => $"Snap to 10 {UnitConversions.GetUnitAbbreviation(
+    public string SnapTo10UnitsDisplay => $"对齐到 10 {UnitConversions.GetUnitAbbreviation(
                                                 UnitType.Speed, 
                                                 StateSettingsHandler.Current.GetSettings().DisplayUnits
                                             )}";
 
-    public string SnapTo10UnitsAutomationName => $"Snap ACC to 10 units, toggle, {(SnapTo10Units ? "enabled" : "disabled")}";
+    public string SnapTo10UnitsAutomationName => $"ACC 对齐到 10 单位，开关，{(SnapTo10Units ? "已启用" : "已禁用")}";
 
     public bool SnapTo10Units
     {
@@ -106,7 +107,7 @@ public partial class AssistanceSettingsPage : UserControl, INotifyPropertyChange
         }
     }
 
-    public string MaximumSpeedDisplay => AssistanceSettings.Current.MaximumSpeed > 0 ? $"{AssistanceSettings.Current.MaximumSpeed:F0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, StateSettingsHandler.Current.GetSettings().DisplayUnits)}" : "No Limit";
+    public string MaximumSpeedDisplay => AssistanceSettings.Current.MaximumSpeed > 0 ? $"{AssistanceSettings.Current.MaximumSpeed:F0} {UnitConversions.GetUnitAbbreviation(UnitType.Speed, StateSettingsHandler.Current.GetSettings().DisplayUnits)}" : UiStrings.NoLimit;
     public float MaximumSpeed
     {
         get => AssistanceSettings.Current.MaximumSpeed;
@@ -292,7 +293,7 @@ public class TabStripItemHandler: INotifyPropertyChanged
             "Late" => "较晚",
             "Medium" => "中等",
             "Early" => "较早",
-            _ => FormatOptionName(Item)
+            _ => UiStrings.FormatEnumOption(Item)
         };
     }
 

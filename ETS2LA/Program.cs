@@ -1,4 +1,4 @@
-﻿using Velopack;
+using Velopack;
 using Velopack.Locators;
 
 using ETS2LA.Tutorials;
@@ -55,10 +55,10 @@ internal static class Program
         args = Utils.WaitForRestartParentProcess(args);
 
         if (Utils.IsRunningAsRoot())
-            Utils.HandleContinueClose("ETS2LA is running as a system administrator. This puts your system at risk if you use 3rd party plugins. Select Yes to continue anyway and accept the risk.");
+            Utils.HandleContinueClose("ETS2LA 正在以系统管理员身份运行。使用第三方插件可能带来安全风险。选择「是」表示您了解风险并继续。");
 
         if (Utils.DoesETS2LAProcessExist())
-            throw new InvalidOperationException("ETS2LA is already running, please close it from the Task Manager.");
+            throw new InvalidOperationException("ETS2LA 已在运行，请从任务管理器中关闭后再启动。");
 
         // Velopack is the installer / update manager
         // Please don't move this, Velopack has to be initialized before anything else,
