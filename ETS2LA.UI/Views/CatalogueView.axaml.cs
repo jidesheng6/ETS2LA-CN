@@ -211,7 +211,7 @@ public class NetworkPluginItem : INotifyPropertyChanged
     public string Author => _instance.Author;
     public string WebsiteUrl => _instance.WebsiteUrl;
     public string DependenciesCount => _latestVersion?.Dependencies.Count.ToString() ?? "0";
-    public string DependenciesTooltip => _latestVersion?.Dependencies.Count == 0 ? "No dependencies" : "Dependencies:\n" + string.Join("\n", _latestVersion?.Dependencies ?? new List<string>());
+    public string DependenciesTooltip => _latestVersion?.Dependencies.Count == 0 ? "无依赖项" : "依赖项：\n" + string.Join("\n", _latestVersion?.Dependencies ?? new List<string>());
     public string Initials => BuildInitials(Name);
     public bool IsPlugin => _instance.Tags.Contains(NetworkPluginTags.Plugin);
     public bool IsLibrary => _instance.Tags.Contains(NetworkPluginTags.Library);

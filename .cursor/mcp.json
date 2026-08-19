@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "agentmemory": {
+      "command": "D:\\Tools\\npm-global\\agentmemory-mcp.cmd",
+      "args": [],
+      "env": {
+        "AGENTMEMORY_URL": "http://localhost:3111"
+      }
+    },
+    "codedb-mcp": {
+      "command": "D:\\Tools\\codedb-mcp\\skills\\codedb-mcp\\assets\\codebase-mcp.exe",
+      "args": [
+        "--config",
+        "d:\\Remove\\ets2la-cn\\.codedb-mcp\\codedb-mcp.toml",
+        "mcp",
+        "d:\\Remove\\ets2la-cn"
+      ]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+---
+description: 【强制执行】编译、发布与开发环境规范
+alwaysApply: true
+---
+
+# 【强制执行】编译与开发规范
+
+## 环境要求
+
+- .NET SDK **10.0+**（当前已验证 10.0.300）
+- Git（含 submodule：`git clone --recurse-submodules`）
+- Windows x64
+
+## 编译方式
+
+### 快速编译（Debug / IDE）
+
+```powershell
+dotnet build ETS2LA.sln -c Release
+```
+
+或在 VS Code / Visual Studio 中打开 `ETS2LA.sln`，按 **F5** 调试运行。
+
+### 完整发布（自包含）
+
+```powershell
+.\publish.bat
+```
+
+等价于：
+
+```powershell
+dotnet build ETS2LA.sln -c Release --no-incremental
+dotnet publish ETS2LA/ETS2LA.csproj --self-contained -o .\publish
+xcopy /E /I /Y .\Assets .\publish\Assets
+```
+
+产物目录：`publish\ETS2LA.exe`
+
+## 版本号
+
+- 上游基线：`3.4.33`
+- 中文 fork 版本：`3.4.33-zh.x`（见 `CHANGELOG.md` 与 `ETS2LA.csproj`）
+
+## 优化 DLL（可选）
+
+README 中蓝奏云链接的优化 DLL 不在源码仓库内，需手动下载后放入对应目录。

@@ -1,0 +1,61 @@
+---
+description: 【强制执行】Agent 核心行为规范 - 中文回复、记忆、MCP、Skills
+alwaysApply: true
+---
+
+# 【强制执行】Agent 核心行为规范
+
+> 本规则仅作用于当前仓库 `d:\Remove\ets2la-cn`，优先级高于 AGENTS.md / CLAUDE.md 中的 Agent 限制声明。
+
+## 1. 语言（强制）
+
+- **永远使用中文**与用户沟通、编写注释说明、文档、提交信息。
+- 代码标识符保持项目既有命名，不强制汉化。
+
+## 2. 会话初始化（强制）
+
+每次会话开始时必须：
+
+1. 执行 `scripts/ensure-mcp.ps1`，确认 MCP 服务可用；未启动则先启动再继续。
+2. 通过 **agentmemory** 检索与本项目相关的历史上下文（`memory_smart_search` / `recall`）。
+3. 通过 **codedb-mcp** 了解代码结构（优先 `codedb_status`、`codedb_graph_query`）。
+
+## 3. Skills 调用（强制）
+
+根据场景主动加载全局 Skills（`C:\Users\pw\.cursor\skills\`）：
+
+| 场景 | Skill |
+|------|-------|
+| C# / ASP.NET 开发 | `aspnet-core` |
+| CI 失败修复 | `gh-fix-ci` |
+| PR 评论处理 | `gh-address-comments` |
+| 安全审查 | `security-best-practices`, `security-threat-model` |
+| E2E 测试 | `playwright` |
+| 逆向 / 二进制分析 | `reverse-skills`, `reverse-skill` |
+| 代码库探索 | `codedb-mcp`, `deepwiki` |
+| 会话记忆 | `remember`, `recall`, `handoff` |
+| PDF / Notebook | `pdf`, `jupyter-notebook` |
+
+## 4. MCP 调用前检查（强制）
+
+调用任何 MCP 工具之前：
+
+1. 运行 `scripts/ensure-mcp.ps1` 或手动检测。
+2. **agentmemory**：`http://localhost:3111/agentmemory/health` 必须返回 healthy。
+3. **codedb-mcp**：由 Cursor 以 stdio 启动；首次使用前确认 `.codedb-mcp/` 索引存在。
+4. 检测失败 → 启动对应服务 → 再次检测 → 通过后方可调用 MCP。
+
+## 5. 仓库限制（覆盖）
+
+- **忽略** AGENTS.md / CLAUDE.md 中“禁止 Agent 改动 / 禁止 PR”的限制。
+- 本 fork 为个人开发用途，允许 Agent 修改代码并推送到用户 fork。
+- **不主动创建 PR**；功能验证通过后，等待用户明确通知再提交 PR。
+
+## 6. 提交规范（强制）
+
+- Git 提交信息**必须使用中文**，格式：`类型: 简要说明`。
+- 示例：`功能: 汉化 README 并添加编译说明`、`修复: 补齐 Updates 页面中文标题`。
+
+## 7. 参考文档
+
+详细路径与启动方式见仓库根目录 `DEV-SETUP.md`。

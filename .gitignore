@@ -5,3 +5,6 @@ publish
 Releases
 .idea
 .vs
+
+# codedb-mcp 本地索引（可重建）
+.codedb-mcp/

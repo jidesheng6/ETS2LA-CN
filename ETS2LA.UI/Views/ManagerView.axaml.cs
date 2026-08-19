@@ -189,7 +189,7 @@ public class PluginItem : INotifyPropertyChanged
     public string Author => _instance.Info.AuthorName;
     public string AuthorLink => _instance.Info.AuthorWebsite;
     public string DependenciesCount => _instance.Info.Dependencies.Count.ToString();
-    public string DependenciesTooltip => _instance.Info.Dependencies.Count == 0 ? "No dependencies" : "Dependencies:\n" + string.Join("\n", _instance.Info.Dependencies);
+    public string DependenciesTooltip => _instance.Info.Dependencies.Count == 0 ? "无依赖项" : "依赖项：\n" + string.Join("\n", _instance.Info.Dependencies);
     public string Initials => BuildInitials(Name);
 
     public bool IsEnabled

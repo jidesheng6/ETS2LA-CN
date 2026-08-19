@@ -70,8 +70,8 @@ public partial class Updates : UserControl, INotifyPropertyChanged
                 NotificationHandler.Current.SendNotification(new Notification
                 {
                     Id = "UpdateNotification",
-                    Title = "Update Available",
-                    Content = $"A new version is available: {LatestUpdateInfo.TargetFullRelease.Version}",
+                    Title = "发现新版本",
+                    Content = $"有新版本可用：{LatestUpdateInfo.TargetFullRelease.Version}",
                     Level = NotificationLevel.Success,
                     CloseAfter = 5,
                     IsProgressIndeterminate = false

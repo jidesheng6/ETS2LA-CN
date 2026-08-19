@@ -103,8 +103,8 @@ public partial class MainWindow : AppWindow
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "MainWindow.StayOnTopChanged",
-            Title = "Stay On Top",
-            Content = Topmost ? "Enabled" : "Disabled",
+            Title = "窗口置顶",
+            Content = Topmost ? "已启用" : "已禁用",
             CloseAfter = 2.0f,
             Level = Topmost ? NotificationLevel.Success : NotificationLevel.Danger
         });
@@ -120,8 +120,8 @@ public partial class MainWindow : AppWindow
         NotificationHandler.Current.SendNotification(new Notification
         {
             Id = "MainWindow.TransparencyChanged",
-            Title = "Transparency",
-            Content = this.Opacity < 1.0 ? "Enabled" : "Disabled",
+            Title = "窗口透明",
+            Content = this.Opacity < 1.0 ? "已启用" : "已禁用",
             CloseAfter = 2.0f,
             Level = this.Opacity < 1.0 ? NotificationLevel.Success : NotificationLevel.Danger
         });
@@ -209,9 +209,9 @@ public partial class MainWindow : AppWindow
         {
             PageKind.Dashboard => dashboardView,
             PageKind.Manager => managerView ??= new ManagerView(pluginService),
-            PageKind.Visualization => CreatePlaceholder("Sorry", "此页面正在重做，当前版本暂不可用，未来更新会恢复。"),
+            PageKind.Visualization => CreatePlaceholder("抱歉", "此页面正在重做，当前版本暂不可用，未来更新会恢复。"),
             PageKind.Catalogue => catalogueView ??= new CatalogueView(),
-            PageKind.Performance => CreatePlaceholder("Performance", "此页面尚未实现，你可以使用外部工具监控性能。"),
+            PageKind.Performance => CreatePlaceholder("性能", "此页面尚未实现，你可以使用外部工具监控性能。"),
             PageKind.Wiki => wikiView ??= new WikiView(),
             PageKind.Roadmap => CreatePlaceholder("路线图", "请查看 GitHub 上的公开路线图。进入仓库后点击顶部的 Projects 选项卡。"),
             PageKind.Settings => settingsView ??= new SettingsView(),
