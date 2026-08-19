@@ -10,6 +10,7 @@ using Avalonia.Media;
 using ETS2LA.UI.Services;
 using ETS2LA.Shared;
 using ETS2LA.Logging;
+using ETS2LA.UI.Localization;
 
 namespace ETS2LA.UI.Views;
 
@@ -180,9 +181,9 @@ public class PluginItem : INotifyPropertyChanged
     private bool _isEnabled;
 
     public string Id => _instance.Info.Id;
-    public string Name => _instance.Info.Name;
-    public string AutomationName => GetAutomationText();
-    public string Description => _instance.Info.Description;
+    public string Name => UiStrings.PluginDisplay(Id, _instance.Info.Name, _instance.Info.Description).Name;
+    public string AutomationName => UiStrings.EnabledPluginCardAutomation(_isEnabled, Name);
+    public string Description => UiStrings.PluginDisplay(Id, _instance.Info.Name, _instance.Info.Description).Description;
     public string Version => _instance.Info.Version;
     public string IconUrl => _instance.Info.Icon;
     public string SupportedVersion => _instance.Info.SupportedETS2LA;
@@ -230,14 +231,6 @@ public class PluginItem : INotifyPropertyChanged
         if (parts.Length == 1)
             return parts[0].Length >= 2 ? parts[0].Substring(0, 2).ToUpperInvariant() : parts[0].ToUpperInvariant();
         return string.Concat(parts.Take(2).Select(p => p[0])).ToUpperInvariant();
-    }
-
-    private string GetAutomationText()
-    {
-        string text = _isEnabled ? "Enabled plugin card," : "Disabled plugin card,";
-        text += $" {Name}";
-        text += ", button";
-        return text;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

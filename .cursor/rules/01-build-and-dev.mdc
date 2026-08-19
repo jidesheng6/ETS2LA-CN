@@ -37,6 +37,17 @@ xcopy /E /I /Y .\Assets .\publish\Assets
 
 产物目录：`publish\ETS2LA.exe`
 
+**强制：** 用户实际运行的是 `publish\ETS2LA.exe`。只执行 `dotnet build` 不会更新该目录。改完 UI / 版本号 / 覆盖层后必须跑 `.\publish.bat`，否则用户仍看到旧的 8 月 15 日产物。
+
+`publish.bat` 必须备份并还原以下运行时目录（不在 git 内）：
+
+| 目录 | 用途 |
+|------|------|
+| `publish\Plugins` | 已安装插件 DLL（如 tumppi066.laneassist） |
+| `publish\Libraries` | 已安装库 DLL（如 tumppi066.pathlib） |
+
+Windows 上 `PluginHandler.PluginRootPath` 为空，加载路径就是进程工作目录下的 `Plugins` / `Libraries`，即上述两处。
+
 ## 版本号
 
 - 上游基线：`3.4.33`
@@ -44,4 +55,4 @@ xcopy /E /I /Y .\Assets .\publish\Assets
 
 ## 优化 DLL（可选）
 
-README 中蓝奏云链接的优化 DLL 不在源码仓库内，需手动下载后放入对应目录。
+README 中蓝奏云链接的优化 DLL 不在源码仓库内，需手动下载后放入 `publish\Plugins` 或 `publish\Libraries`。

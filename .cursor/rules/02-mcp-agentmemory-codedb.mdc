@@ -1,0 +1,113 @@
+---
+description: 【强制执行】agentmemory 与 codedb-mcp 的调用方式
+alwaysApply: true
+---
+
+# 【强制执行】agentmemory 与 codedb-mcp 调用说明
+
+> 本规则优先于口头习惯。未按本节调用 MCP，视为未完成本仓库的会话初始化。
+
+## 0. 调用前检查（每次会话、每次 MCP 批次前）
+
+1. 先执行 `scripts/ensure-mcp.ps1`。
+2. **agentmemory** 健康检查：`http://localhost:3111/agentmemory/health` 必须为 healthy。
+3. **codedb-mcp** 由 Cursor stdio 启动；仓库索引在 `.codedb-mcp/`。
+4. 失败则启动服务 / 重建索引，再检测，通过后才能 `CallMcpTool`。
+5. **先读 MCP 工具 JSON schema**，再调用。
+
+项目记忆的 `project` 固定为：`ets2la-cn`。
+
+---
+
+## 1. agentmemory（强制）
+
+### 何时必须调用
+
+| 时机 | 工具 | 说明 |
+|------|------|------|
+| 会话开始 | `memory_smart_search` | 检索本 fork、版本、覆盖层、插件、发布相关记忆 |
+| 用户说记住 / 重要决策落地 | `memory_save` | 事实、架构、工作流 |
+| 纠正了错误做法 | `memory_lesson_save` | 可执行的规则，不是故事 |
+| 改完关键逻辑 | `memory_save` | 写入新结论，避免下轮遗忘 |
+
+### 常用工具与参数
+
+**`memory_smart_search`**
+
+- `query`：中英关键词均可，包含项目名与主题，例如 `ets2la-cn AppVersion overlay Plugins`。
+- `limit`：默认 8–10。
+- 只陈述工具返回的内容，禁止编造记忆。
+
+**`memory_save`**
+
+- `content`：完整可检索的结论（保留关键标识符）。
+- `concepts`：2–5 个小写英文短语，逗号分隔。
+- `files`：仓库相对路径，逗号分隔。
+- `project`：`ets2la-cn`。
+- `type`：`pattern` / `preference` / `architecture` / `bug` / `workflow` / `fact`。
+
+**`memory_lesson_save`**
+
+- `content`：一条祈使句（做什么 / 禁止做什么 + 后果）。
+- `context`：触发场景。
+- `project`：`ets2la-cn`。
+- `confidence`：用户纠正用 0.7，自查用 0.5。
+- `tags`：逗号分隔。
+
+### 本仓库必须记住的事实（写入后仍要遵守）
+
+- UI 版本用 `AppVersion.GetDisplayVersion()`，禁止把 Velopack `CurrentVersion` 直接显示到更新页。
+- 用户看的是 `publish\ETS2LA.exe`。只 `dotnet build` **不够**；改 UI 后必须 `.\publish.bat`。
+- 插件不在 git 里，运行时目录是：
+  - `d:\Remove\ets2la-cn\publish\Plugins`
+  - `d:\Remove\ets2la-cn\publish\Libraries`
+- 推送用 remote `fork`，不推 `origin`；不主动开 PR。
+
+---
+
+## 2. codedb-mcp（强制）
+
+### 何时必须调用
+
+探索跨文件调用、插件加载、覆盖层 RenderLoop、版本解析、设置页绑定等，**先图查询再读源码**。禁止把任务中文直接当图谓词。
+
+### 工具顺序
+
+1. `codedb_graph_query`：发现与证据链。无锚点时查 `EntryFile` / `BoundaryFile`。
+2. 需要局部语义时：`codedb_symbol`（`body=true`，`max_results=1`）或 `codedb_read` 精确范围。
+3. `codedb_status` **仅**在用户问索引健康、或 `ensure-mcp` 诊断时使用，不要每次分析前都打 status。
+
+### `codedb_graph_query` 语法硬约束
+
+- 必须有 `MATCH` 与 `RETURN`。
+- `WHERE` **只支持** `=` `!=`/`<>` `<` `<=` `>` `>=`，**不支持** `CONTAINS`。
+- 文件/符号用**精确** `path` 或 `name`，例如：
+  - `WHERE file.path = 'ETS2LA.Backend/PluginHandler/Handler.cs'`
+  - `WHERE s.name = 'LoadPlugins'`
+- 发现入口示例：
+
+```
+MATCH (file:EntryFile)
+RETURN file.path, file.community, file.outgoing_degree
+ORDER BY file.outgoing_degree DESC
+LIMIT 15
+```
+
+- 调用边示例：
+
+```
+MATCH (s:Symbol)-[:CALLS]->(t:Symbol)
+WHERE s.name = 'LoadPlugins'
+RETURN s.path, t.name, t.path
+LIMIT 25
+```
+
+查询失败时根据错误改语法，不要改用关键字全文搜索代替图证据。
+
+---
+
+## 3. 与其它规则的关系
+
+- 语言、Git、代理仍以 `00-mandatory-agent.mdc` 为准。
+- 编译与 `publish.bat` 以 `01-build-and-dev.mdc` 为准。
+- 路径与启动脚本细节见 `DEV-SETUP.md`。

@@ -87,6 +87,16 @@ public static class UiStrings
     public static string PluginCardAutomation(bool installed, string name) =>
         installed ? $"已安装插件卡片，{name}，按钮" : $"未安装插件卡片，{name}，按钮";
 
+    public static string EnabledPluginCardAutomation(bool enabled, string name) =>
+        enabled ? $"已启用插件卡片，{name}，按钮" : $"已禁用插件卡片，{name}，按钮";
+
+    public static (string Name, string Description) PluginDisplay(string id, string fallbackName, string fallbackDescription)
+    {
+        if (!string.IsNullOrEmpty(id) && ChinesePlugins.TryGetValue(id, out var mapped))
+            return mapped;
+        return (fallbackName, fallbackDescription);
+    }
+
     /// <summary>已知插件 ID → (中文名, 中文描述)</summary>
     public static readonly Dictionary<string, (string Name, string Description)> ChinesePlugins = new()
     {

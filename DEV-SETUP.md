@@ -30,11 +30,20 @@ dotnet build ETS2LA.sln -c Release --no-incremental
 
 ### 发布脚本说明（publish.bat）
 
-1. `dotnet build ETS2LA.sln -c Release --no-incremental`
-2. `dotnet publish ETS2LA/ETS2LA.csproj --self-contained -o .\publish`
-3. `xcopy /E /I /Y .\Assets .\publish\Assets`
+1. 备份 `publish\Plugins` 与 `publish\Libraries` 到 `%TEMP%\ets2la-cn-plugin-backup`
+2. `dotnet build ETS2LA.sln -c Release --no-incremental`
+3. `dotnet publish ETS2LA/ETS2LA.csproj --self-contained -o .\publish`
+4. `xcopy /E /I /Y .\Assets .\publish\Assets`
+5. 还原 `Plugins` / `Libraries`
 
 产物：`publish\ETS2LA.exe`（约 274 MB，含运行时）
+
+运行时插件（不随 git，publish 时必须备份还原）：
+
+- `publish\Plugins` — 如 `tumppi066.adaptivecruisecontrol`、`tumppi066.laneassist`
+- `publish\Libraries` — 如 `tumppi066.pathlib`、`tumppi066.pidlib`
+
+改完界面后必须重新 `.\publish.bat` 再运行该 exe，否则仍是旧产物。
 
 ### IDE 调试
 
@@ -103,6 +112,24 @@ D:\Tools\codedb-mcp\skills\codedb-mcp\assets\codebase-mcp.exe `
 .\scripts\ensure-mcp.ps1
 ```
 
+### 【强制执行】Agent 如何调用这两个 MCP
+
+细则写在 `.cursor/rules/02-mcp-agentmemory-codedb.mdc`，摘要如下。
+
+**agentmemory（server：`user-agentmemory`）**
+
+1. 会话开始：`memory_smart_search`，query 含 `ets2la-cn` 与当前主题。
+2. 重要结论：`memory_save`，`project` 必须为 `ets2la-cn`。
+3. 可执行教训：`memory_lesson_save`。
+4. 健康检查：http://localhost:3111/agentmemory/health
+
+**codedb-mcp（server：`user-codedb-mcp`）**
+
+1. 跨文件分析先 `codedb_graph_query`，查询必须带 `RETURN`。
+2. `WHERE` 只用 `=` / `!=` / 比较运算，**禁止 `CONTAINS`**；`path` / `name` 必须精确。
+3. 局部语义再用 `codedb_symbol`（`body=true`, `max_results=1`）。
+4. `codedb_status` 只用于索引诊断，不要当作每次分析的第一步。
+
 ---
 
 ## 三、全局 Skills
@@ -142,7 +169,8 @@ D:\Tools\codedb-mcp\skills\codedb-mcp\assets\codebase-mcp.exe `
 项目规则位于 `.cursor/rules/`，全部标记为**强制执行**：
 
 - `00-mandatory-agent.mdc` — 中文回复、MCP/Skills 使用、提交规范
-- `01-build-and-dev.mdc` — 编译与发布流程
+- `01-build-and-dev.mdc` — 编译与发布流程、插件目录、必须 publish
+- `02-mcp-agentmemory-codedb.mdc` — agentmemory / codedb 强制调用方式
 
 ---
 

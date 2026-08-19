@@ -18,7 +18,8 @@ alwaysApply: true
 
 1. 执行 `scripts/ensure-mcp.ps1`，确认 MCP 服务可用；未启动则先启动再继续。
 2. 通过 **agentmemory** 检索与本项目相关的历史上下文（`memory_smart_search` / `recall`）。
-3. 通过 **codedb-mcp** 了解代码结构（优先 `codedb_status`、`codedb_graph_query`）。
+3. 通过 **codedb-mcp** 了解代码结构（优先 `codedb_graph_query`；索引诊断才用 `codedb_status`）。
+4. **调用细则（工具名、参数、图查询语法）见 `02-mcp-agentmemory-codedb.mdc`，必须遵守。**
 
 ## 3. Skills 调用（强制）
 
